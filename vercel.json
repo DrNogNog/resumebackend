@@ -6,14 +6,14 @@
       "use": "@vercel/next"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://resumesub-backend.example.com/$1"
+      "source": "/api/:path*",
+      "destination": "https://resumesub-backend.example.com/:path*" 
     },
     {
-      "src": "/(.*)",
-      "dest": "/"
+      "source": "/(.*)",
+      "destination": "/"
     }
   ],
   "redirects": [
