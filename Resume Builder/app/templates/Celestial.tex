@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{Arial}[
+  BoldFont       = * Bold,
+  ItalicFont     = * Italic,
+  BoldItalicFont = * Bold Italic
+]
+
+\usepackage{xcolor}
+\usepackage{geometry}
+\geometry{margin=0.75in}
+
+\usepackage{multicol}
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*,nosep,topsep=6pt,itemsep=3pt}
+\usepackage{parskip}
+\setlength{\parskip}{5pt}
+
+\usepackage[many]{tcolorbox}
+
+\definecolor{leftgray}{gray}{0.94}
+\definecolor{graytext}{gray}{0.5}
+
+\tcbset{
+  sidebarstyle/.style={
+    colback=leftgray,
+    colframe=leftgray,
+    left=6pt, right=6pt, top=6pt, bottom=6pt,
+    boxsep=6pt,
+    arc=0pt,
+    outer arc=0pt,
+    width=\linewidth,
+    boxrule=0pt
+  }
+}
+
+\pagestyle{empty}
+
+\begin{document}
+
+% ---------------- HEADER ----------------
+\noindent
+{\Huge\bfseries {{ name }}}\hfill{\large\color{graytext} {{ title }}}
+
+\vspace{20pt}
+
+% ---------------- TWO COLUMNS ----------------
+\begin{multicols}{2}
+
+% LEFT COLUMN
+\begin{tcolorbox}[sidebarstyle]
+\section*{DETAILS}
+Email: {{ email }} \\[2pt]
+Phone: {{ phone }} \\[2pt]
+Address: {{ address_street }}, {{ address_city }}, {{ address_state }} {{ address_zip }}, {{ address_country }}
+
+\vspace{12pt}
+\section*{SKILLS}
+{{ skills_tex }}
+\end{tcolorbox}
+
+% RIGHT COLUMN
+\columnbreak
+\section*{SUMMARY}
+{{ summary }}
+
+\vspace{12pt}
+\section*{EXPERIENCE}
+{{ experience_tex }}
+
+\vspace{12pt}
+\section*{EDUCATION}
+{{ education_tex }}
+
+\end{multicols}
+
+\end{document}

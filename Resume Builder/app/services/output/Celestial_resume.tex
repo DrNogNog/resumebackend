@@ -1,0 +1,98 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Heros}[
+  BoldFont       = * Bold,
+  ItalicFont     = * Italic,
+  BoldItalicFont = * Bold Italic
+]
+
+\usepackage{xcolor}
+\usepackage{geometry}
+\geometry{margin=0.75in}
+
+\usepackage{multicol}
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*,nosep,topsep=6pt,itemsep=3pt}
+\usepackage{parskip}
+\setlength{\parskip}{5pt}
+
+\usepackage[many]{tcolorbox}
+
+\definecolor{leftgray}{gray}{0.94}
+\definecolor{graytext}{gray}{0.5}
+
+\tcbset{
+  sidebarstyle/.style={
+    colback=leftgray,
+    colframe=leftgray,
+    left=6pt, right=6pt, top=6pt, bottom=6pt,
+    boxsep=6pt,
+    arc=0pt,
+    outer arc=0pt,
+    width=\linewidth,
+    boxrule=0pt
+  }
+}
+
+\pagestyle{empty}
+
+\begin{document}
+
+% ---------------- HEADER ----------------
+\noindent
+{\Huge\bfseries GORDON/GORDON Ng}\hfill{\large\color{graytext} }
+
+\vspace{20pt}
+
+% ---------------- TWO COLUMNS ----------------
+\begin{multicols}{2}
+
+% LEFT COLUMN
+\begin{tcolorbox}[sidebarstyle]
+\section*{DETAILS}
+Email: gordoncs@outlook.com \\[2pt]
+Phone: 9298882308 \\[2pt]
+Address: , ,  , 
+
+\vspace{12pt}
+\section*{SKILLS}
+\begin{itemize}
+  \item t
+  \item t
+\end{itemize}
+\end{tcolorbox}
+
+% RIGHT COLUMN
+\columnbreak
+\section*{SUMMARY}
+
+
+\vspace{12pt}
+\section*{EXPERIENCE}
+\textbf{t}\\
+\textit{Optum Health}, t \hfill 
+\begin{itemize}
+  \item Optum Health
+\end{itemize}
+\vspace{18pt}
+\textbf{t}\\
+\textit{Optum Health}, t \hfill 
+\begin{itemize}
+  \item 
+\end{itemize}
+\vspace{18pt}
+
+
+\vspace{12pt}
+\section*{EDUCATION}
+\textbf{t} \hfill \\
+, 
+
+\textbf{} \hfill \\
+, 
+
+
+
+\end{multicols}
+
+\end{document}

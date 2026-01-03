@@ -1,0 +1,112 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{Calibri}[
+  BoldFont       = * Bold,
+  ItalicFont     = * Italic,
+  BoldItalicFont = * Bold Italic
+]
+
+\usepackage{xcolor}
+\usepackage{geometry}
+\geometry{
+  left=1.4cm,
+  right=1.4cm,
+  top=1.8cm,
+  bottom=2cm
+}
+
+\usepackage{multicol}
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*,label={},nosep,topsep=2pt,itemsep=2pt}
+
+\usepackage{parskip}
+\setlength{\parskip}{4pt}
+
+\usepackage[many]{tcolorbox}
+
+\definecolor{headerblue}{RGB}{23,58,108}     % Header background
+\definecolor{phoneblue}{RGB}{51,85,137}      % Phone box
+\definecolor{sectionblue}{RGB}{23,58,108}    % Section titles
+
+% tcolorbox style for header
+\tcbset{
+  headerstyle/.style={
+    colback=headerblue,
+    colframe=headerblue,
+    left=6pt, right=6pt, top=6pt, bottom=6pt,
+    boxsep=6pt,
+    arc=0pt,
+    outer arc=0pt,
+    width=\textwidth,
+    boxrule=0pt
+  }
+}
+
+\pagestyle{empty}
+
+\begin{document}
+
+% ====================== BLUE HEADER WITH INLINE SUMMARY ======================
+\begin{tcolorbox}[headerstyle]
+\begin{minipage}[t]{0.58\textwidth}
+  \color{white}
+  \fontsize{26}{30}\selectfont\bfseries {{ name }}\par
+  \vspace{5pt}
+  \fontsize{14}{17}\selectfont {{ title }}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.40\textwidth}
+  \raggedleft\color{white}\fontsize{9.5}{11.8}\selectfont
+  {{ header_summary }}\par
+  \vspace{6pt}
+  {{ email }}\par
+  \vspace{4pt}
+  \colorbox{phoneblue}{\color{white}\bfseries\enspace{{ phone }}\enspace}\par
+  \vspace{4pt}
+  {{ location }}
+\end{minipage}%
+\end{tcolorbox}
+
+\vspace{16pt}
+
+% ====================== TWO COLUMNS BELOW HEADER ======================
+\begin{multicols}{2}
+
+% ------------------- LEFT COLUMN -------------------
+\color{sectionblue}\Large\bfseries EDUCATION\par
+\vspace{4pt}
+\normalsize\color{black}
+{% for edu in education %}
+\textbf{{ edu.school }}\par
+\textit{{ edu.location }} \hfill {{ edu.dates }}\par
+{{ edu.degree }}\par
+\vspace{12pt}
+{% endfor %}
+
+\color{sectionblue}\Large\bfseries SKILLS\par
+\vspace{4pt}
+\normalsize\color{black}
+\begin{itemize}
+{% for skill in skills %}
+\item {{ skill }}
+{% endfor %}
+\end{itemize}
+
+% ------------------- RIGHT COLUMN -------------------
+\columnbreak
+
+\color{sectionblue}\Large\bfseries EXPERIENCE\par
+\vspace{4pt}
+\normalsize\color{black}
+{% for job in experience %}
+\textbf{{ job.role }} -- {{ job.company }}\par
+\textit{{ job.location }} \hfill {{ job.dates }}\par
+{% for bullet in job.bullets %}
+\noindent{{ bullet }}\par
+{% endfor %}
+\vspace{12pt}
+{% endfor %}
+
+\end{multicols}
+
+\end{document}

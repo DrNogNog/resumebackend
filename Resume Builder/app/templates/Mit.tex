@@ -1,0 +1,91 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{multicol}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\titleformat{\section}{\Large\bfseries}{}{0em}{}
+\titleformat{\subsection}{\large\bfseries}{}{0em}{}
+\titleformat{\subsubsection}{\bfseries}{}{0em}{}
+
+\begin{document}
+\pagestyle{empty}
+
+%---------------- Personal Info ----------------%
+\noindent{\raggedright
+{\Huge\bfseries {{ name | latex_escape }}}\hfill
+{\small {{ school | latex_escape }} \ | \ {{ topheader | latex_escape }}}
+}
+
+\vspace{-0.5\baselineskip} 
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{-1.5\baselineskip} 
+
+%---------------- Education ----------------%
+\noindent{\large\bfseries EDUCATION}
+
+\textbf{ {{ school | latex_escape }} } \hfill \textbf{Class of {{ graduationYear | latex_escape }}}
+
+{\bfseries\small {{ degree | latex_escape }}}
+
+{{ courses | join(", ") | latex_escape }}
+
+\vspace{-0.5\baselineskip} 
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{-1.5\baselineskip}
+
+%---------------- Work ----------------%
+\noindent{\large\bfseries WORK}
+
+{% for exp in experiences %}
+\textbf{ {{ exp.company | latex_escape }} } —
+\textit{ {{ exp.role | latex_escape }} }
+\hfill {{ exp.year | latex_escape }}
+
+\begin{itemize}[leftmargin=*]
+\item {{ exp.description | latex_escape }}
+\end{itemize}
+{% endfor %}
+
+\vspace{-0.5\baselineskip} 
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{-1.5\baselineskip}
+
+%---------------- Leadership ----------------%
+\noindent{\large\bfseries LEADERSHIP}
+
+{% for lead in leadership if lead.leadership %}
+\textbf{ {{ lead.leadership | latex_escape }} } —
+\textit{ {{ lead.role | latex_escape }} }
+\hfill {{ lead.year | latex_escape }}
+
+\begin{itemize}[leftmargin=*]
+\item {{ lead.description | latex_escape }}
+\end{itemize}
+{% endfor %}
+
+\vspace{-0.5\baselineskip} 
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{-1.5\baselineskip}
+
+%---------------- Skills ----------------%
+\noindent{\large\bfseries SKILLS}
+
+{{ skills | join(", ") | latex_escape }}
+
+\vspace{-0.5\baselineskip} 
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{-1.5\baselineskip}
+
+%---------------- Awards ----------------%
+\noindent{\large\bfseries AWARDS}
+
+{% for award in awards if award.name %}
+\textbf{ {{ award.name | latex_escape }} } — {{ award.description | latex_escape }}
+{% endfor %}
+
+\end{document}

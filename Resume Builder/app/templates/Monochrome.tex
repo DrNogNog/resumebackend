@@ -1,0 +1,127 @@
+\documentclass[11pt,a4paper]{article}
+
+%------------------ Packages ------------------
+\usepackage{fontspec}
+\setmainfont{Calibri}[
+  BoldFont       = * Bold,
+  ItalicFont     = * Italic,
+  BoldItalicFont = * Bold Italic
+]
+
+\usepackage{xcolor}
+\usepackage{geometry}
+\geometry{margin=0.75in}
+
+\usepackage{multicol}
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*,nosep,topsep=0pt,itemsep=2pt}
+\usepackage{parskip}
+\setlength{\parskip}{4pt}
+
+\definecolor{graybg}{gray}{0.90}
+\definecolor{grayline}{gray}{0.70}
+
+\pagestyle{empty}
+
+\begin{document}
+
+% ====================== CENTERED BOXED HEADER ======================
+\begin{center}
+\fbox{%
+\begin{minipage}{0.85\textwidth}
+\centering
+\vspace{10pt}
+
+\textbf{\Huge ((( name | latex_escape ))) }\\[6pt]
+{\Large ((( title | latex_escape ))) }\\[10pt]
+
+\vspace{10pt}
+\end{minipage}%
+}
+\end{center}
+\vspace{15pt}
+
+% ====================== TWO COLUMNS ======================
+\begin{multicols}{2}
+
+% ------------------- LEFT COLUMN -------------------
+\noindent
+\colorbox{graybg}{%
+\parbox{\dimexpr\columnwidth-2\fboxsep\relax}{%
+\vspace{6pt}
+
+\section*{DETAILS}
+\vspace{-0.5\baselineskip}
+\noindent\rule{\linewidth}{0.4pt}
+
+\textbf{ADDRESS}\\
+((( address.street | latex_escape ))), ((( address.city | latex_escape ))), ((( address.state | latex_escape ))) ((( address.zip | latex_escape ))), ((( address.country | latex_escape )))
+
+\vspace{8pt}
+
+\textbf{PHONE}\\
+((( phone | latex_escape )))
+
+\vspace{8pt}
+
+\textbf{EMAIL}\\
+((( email | latex_escape )))
+
+\vspace{12pt}
+
+\section*{SKILLS}
+\vspace{-0.5\baselineskip}
+\noindent\rule{\linewidth}{0.4pt}
+
+\begin{itemize}
+((* for skill in skills *))
+\item ((( skill | latex_escape )))
+((* endfor *))
+\end{itemize}
+
+\vspace{6pt}
+}%
+} % end colorbox
+
+% ------------------- RIGHT COLUMN -------------------
+\columnbreak
+
+\section*{SUMMARY}
+\vspace{-0.5\baselineskip}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{-1.0\baselineskip}
+
+((( summary | latex_escape )))
+
+\vspace{15pt}
+
+\section*{EXPERIENCE}
+\vspace{-0.5\baselineskip}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{-1.0\baselineskip}
+
+((* for job in experience *))
+\textbf{((( job.role | latex_escape ))), ((( job.company | latex_escape ))) } \hfill ((( job.location | latex_escape )))\\
+((( job.dates | latex_escape )))
+\begin{itemize}
+  ((* for bullet in job.bullets *))
+  \item ((( bullet | latex_escape )))
+  ((* endfor *))
+\end{itemize}
+\vspace{8pt}
+((* endfor *))
+
+\section*{EDUCATION}
+\vspace{-0.5\baselineskip}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{-1.0\baselineskip}
+
+((* for edu in education *))
+\textbf{((( edu.degree | latex_escape ))), ((( edu.school | latex_escape ))) } \hfill ((( edu.location | latex_escape )))\\
+((( edu.dates | latex_escape )))
+\vspace{6pt}
+((* endfor *))
+
+\end{multicols}
+
+\end{document}

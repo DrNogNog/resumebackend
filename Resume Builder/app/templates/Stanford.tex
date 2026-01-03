@@ -1,0 +1,63 @@
+\documentclass{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{multicol}
+\usepackage{url}
+
+\begin{document}
+\renewcommand{\baselinestretch}{0.95}
+\small
+
+%================ Header =================%
+\begin{center}
+    \textbf{\Large {{ name | latex_escape }}}\\
+    {{ address | latex_escape }}\\
+    {{ city_state_zip | latex_escape }}\\
+    {{ phone | latex_escape }}\\
+    \url{ {{ email | latex_escape }} }
+\end{center}
+
+\vspace{-0.5em}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{-1.2em}
+
+%================ EXPERIENCE =================%
+\noindent{\bfseries EXPERIENCE}
+
+{% for exp in experiences %}
+\noindent{\bfseries {{ exp.company | latex_escape }}} \hfill {{ exp.location | latex_escape }}\\
+\textit{ {{ exp.role | latex_escape }} } \hfill {{ exp.years | latex_escape }}
+
+\begin{itemize}[leftmargin=*, topsep=2pt, itemsep=1pt]
+{% for b in exp.bullets %}
+    \item {{ b | latex_escape }}
+{% endfor %}
+\end{itemize}
+{% endfor %}
+
+\vspace{-0.5em}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{-1.0em}
+
+%================ EDUCATION =================%
+\noindent{\bfseries EDUCATION}
+
+\noindent{\bfseries {{ education.school | latex_escape }}} \hfill {{ education.location | latex_escape }}\\
+\textit{ {{ education.degree | latex_escape }} }\\
+{{ education.highlights | join(", ") | latex_escape }}
+
+\vspace{-0.5em}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{-1.0em}
+
+%================ ADDITIONAL =================%
+\noindent{\bfseries ADDITIONAL}
+
+\begin{itemize}[leftmargin=*]
+{% for item in additional %}
+    \item {{ item | latex_escape }}
+{% endfor %}
+\end{itemize}
+
+\end{document}

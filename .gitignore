@@ -1,0 +1,16 @@
+.venv
+\app\build
+Resume Builder/app/build/
+Resume Builder/build/
+Resume Builder/app/services/__pycache__/extraction_service.cpython-38.pyc
+Resume Builder/app/services/output/Celestial_resume.aux
+Resume Builder/app/services/output/Celestial_resume.log
+Resume Builder/app/services/__pycache__/usage_service.cpython-38.pyc
+Resume Builder/app/services/__pycache__/subscription_service.cpython-38.pyc
+Resume Builder/app/services/__pycache__/ollama_service.cpython-38.pyc
+Resume Builder/app/services/__pycache__/latex_service.cpython-38.pyc
+Resume Builder/app/services/__pycache__/auth_service.cpython-38.pyc
+Resume Builder/app/services/__pycache__/__init__.cpython-38.pyc
+.env
+Resume Builder/.env 
+.next

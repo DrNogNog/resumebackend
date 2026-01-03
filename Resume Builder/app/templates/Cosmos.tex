@@ -1,0 +1,91 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{Calibri}[
+  BoldFont       = * Bold,
+  ItalicFont     = * Italic,
+  BoldItalicFont = * Bold Italic
+]
+
+\usepackage{xcolor}
+\usepackage{geometry}
+\geometry{margin=0.8in}
+
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*,nosep,topsep=6pt,itemsep=3pt}
+\usepackage{parskip}
+\setlength{\parskip}{5pt}
+
+\usepackage[many]{tcolorbox}
+
+\definecolor{headergray}{gray}{0.92}         % Light gray background for header
+\definecolor{sectionblue}{RGB}{0,102,153}    % Section title color
+
+% tcolorbox style for header
+\tcbset{
+  headerstyle/.style={
+    colback=headergray,
+    colframe=headergray,
+    left=6pt, right=6pt, top=6pt, bottom=6pt,
+    boxsep=6pt,
+    arc=0pt,
+    outer arc=0pt,
+    width=\textwidth,
+    boxrule=0pt
+  }
+}
+
+\pagestyle{empty}
+
+\begin{document}
+
+% ====================== GRAY HEADER ======================
+\begin{tcolorbox}[headerstyle]
+\begin{minipage}[t]{0.55\textwidth}
+  \vspace{0pt}
+  {\Huge\bfseries {{ name }}}\\[10pt]
+  {\Large {{ title }}}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+  \raggedleft\vspace{0pt}
+  {\large {{ email }} $|$ {{ phone }}}\\[10pt]
+  {\normalsize {{ address_street }}, {{ address_city }}, {{ address_country }}, {{ address_state }} {{ address_zip }}}
+\end{minipage}
+\end{tcolorbox}
+
+\vspace{20pt}
+
+% ====================== SINGLE COLUMN CONTENT ======================
+
+{\color{sectionblue}\Large\bfseries Summary}\\[8pt]
+{{ summary }}
+
+\vspace{24pt}
+
+{\color{sectionblue}\Large\bfseries Experience}\\[8pt]
+{% for job in experience %}
+\textbf{{ job.role }}, {{ job.company }}, {{ job.location }} \hfill {{ job.dates }}
+\begin{itemize}
+  {% for bullet in job.bullets %}
+  \item {{ bullet }}
+  {% endfor %}
+\end{itemize}
+
+\vspace{18pt}
+{% endfor %}
+
+{\color{sectionblue}\Large\bfseries Education}\\[8pt]
+{% for edu in education %}
+\textbf{{ edu.degree }}, {{ edu.school }}, {{ edu.location }} \hfill {{ edu.dates }}
+
+\vspace{12pt}
+{% endfor %}
+
+{\color{sectionblue}\Large\bfseries Skills}\\[8pt]
+\begin{itemize}
+  {% for skill in skills %}
+  \item {{ skill }}
+  {% endfor %}
+\end{itemize}
+
+\end{document}
