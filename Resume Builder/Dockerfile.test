@@ -2,14 +2,18 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy only requirements (no need for app code or TinyTeX for this test)
+# Copy requirements early for better layer caching
 COPY requirements.txt .
 
-# Install dependencies (this is the part you want to test)
-RUN pip install --no-cache-dir -r requirements.txt
+# Upgrade pip and install dependencies with mirror + timeout fixes
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt \
+        -i https://pypi.tuna.tsinghua.edu.cn/simple \
+        --trusted-host pypi.tuna.tsinghua.edu.cn \
+        --default-timeout=1000 \
+        --retries=20
 
-# Optional: Quick sanity check - start Python and import a few key packages
-# (Remove or customize if not needed)
+# Optional: Quick sanity check
 RUN python -c "\
     import cryptography; \
     import fastapi; \
