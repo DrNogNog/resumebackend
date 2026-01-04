@@ -11,4 +11,4 @@ jinja2
 pydantic
 python-dotenv
 aiofiles
-pg8000
+asyncpg==1.2.0
