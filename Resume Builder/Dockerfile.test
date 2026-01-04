@@ -2,10 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy requirements early for better layer caching
 COPY requirements.txt .
 
-# Install system build dependencies + upgrade pip + install with wheel-only mode
+# Install system build dependencies + upgrade pip
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
@@ -25,10 +24,9 @@ RUN apt-get update && \
         --trusted-host pypi.tuna.tsinghua.edu.cn \
         --default-timeout=1000 \
         --retries=20 \
-        --use-deprecated=legacy-resolver \
-        --only-binary :all:
+        --use-deprecated=legacy-resolver
 
-# Optional: Quick sanity check
+# Sanity check
 RUN python -c "\
     import cryptography; \
     import fastapi; \
@@ -36,5 +34,4 @@ RUN python -c "\
     import torch; \
     print('All key packages imported successfully!')"
 
-# If it reaches here, dependencies installed fine
 CMD ["echo", "Requirements test passed!"]
