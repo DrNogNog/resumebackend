@@ -5,8 +5,18 @@ WORKDIR /app
 # Copy requirements early for better layer caching
 COPY requirements.txt .
 
-# Upgrade pip and install dependencies with mirror + timeout + legacy resolver
-RUN pip install --upgrade pip && \
+# Install system build dependencies + upgrade pip
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        gcc \
+        g++ \
+        libffi-dev \
+        libssl-dev \
+        rustc \
+        cargo && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt \
         -i https://pypi.tuna.tsinghua.edu.cn/simple \
         --trusted-host pypi.tuna.tsinghua.edu.cn \
