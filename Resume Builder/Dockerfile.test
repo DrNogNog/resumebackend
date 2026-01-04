@@ -5,7 +5,7 @@ WORKDIR /app
 # Copy requirements early for better layer caching
 COPY requirements.txt .
 
-# Install system dependencies needed for building wheels + upgrade pip
+# Install system build dependencies + upgrade pip + install with wheel-only mode
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
@@ -25,7 +25,8 @@ RUN apt-get update && \
         --trusted-host pypi.tuna.tsinghua.edu.cn \
         --default-timeout=1000 \
         --retries=20 \
-        --use-deprecated=legacy-resolver
+        --use-deprecated=legacy-resolver \
+        --only-binary :all:
 
 # Optional: Quick sanity check
 RUN python -c "\
