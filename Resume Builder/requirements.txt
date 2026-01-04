@@ -337,7 +337,7 @@ trove-classifiers==2025.3.3.18
 typeguard==2.13.3
 typer==0.20.1
 types-python-dateutil==2.9.0.20241206
-typing_extensions==4.13.2
+typing_extensions>=4.8.0
 tzdata==2024.2
 tzlocal==5.2
 ujson==5.10.0
