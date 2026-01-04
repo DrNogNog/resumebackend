@@ -116,7 +116,7 @@ importlib_resources==6.4.5
 inflate64==1.0.0
 installer==0.7.0
 ipykernel==6.29.5
-ipython==8.12.3
+ipython>=8.12
 ipywidgets==8.1.6
 isoduration==20.11.0
 itsdangerous==2.2.0
@@ -133,7 +133,7 @@ jsonpointer==3.0.0
 jsonschema==4.23.0
 jsonschema-specifications==2023.12.1
 jupyter==1.1.1
-jupyter-console==6.6.3
+jupyter-console>=6.6
 jupyter-events==0.10.0
 jupyter-lsp==2.2.5
 jupyter_client==8.6.3
