@@ -11,3 +11,4 @@ jinja2
 pydantic
 python-dotenv
 aiofiles
+pg8000
