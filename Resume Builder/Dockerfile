@@ -13,10 +13,11 @@ RUN tlmgr update --self && \
 
 WORKDIR /app
 
-# COPY FROM backend FOLDER
-COPY backend/requirements.txt .
+# copy requirements
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend/app ./app
+# copy app folder
+COPY app ./app
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
