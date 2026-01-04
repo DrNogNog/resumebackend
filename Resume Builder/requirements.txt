@@ -35,7 +35,7 @@ build==1.2.2.post1
 CacheControl==0.14.2
 cachetools==5.5.2
 certifi==2024.8.30
-cffi==1.17.1
+cffi
 chardet==3.0.4
 charset-normalizer==3.4.0
 cleo==2.1.0
