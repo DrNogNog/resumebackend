@@ -1,6 +1,6 @@
 absl-py==2.1.0
 accelerate==1.0.1
-agents==1.4.0
+agents
 aiofiles==24.1.0
 aiohappyeyeballs==2.4.4
 aiohttp==3.10.11
