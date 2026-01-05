@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parents[4]  # ← resumebackend/
+BASE_DIR = Path("/app") if Path("/app").exists() else Path(__file__).resolve().parents[3]
 
 class Settings(BaseSettings):
     DATABASE_URL: str
