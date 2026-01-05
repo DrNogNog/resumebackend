@@ -24,8 +24,10 @@ else:
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://resumesub.xyz"
+    "https://resumesub.xyz",
+    "https://www.resumesub.xyz",
 ]
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,21 +40,25 @@ app.add_middleware(
 # --- Middleware: Lock /api endpoints ---
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
-    # Only enforce on /api routes
+    # 🚨 Allow CORS preflight immediately
+    if request.method == "OPTIONS":
+        return await call_next(request)
+
     if request.url.path.startswith("/api"):
-        # 1️⃣ Check secret key header
         key = request.headers.get("x-api-key")
         if key != SECRET_KEY:
             raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
 
-        # 2️⃣ Optional: check Origin header to ensure frontend calls
-        allowed_origins = ["https://resumesub.xyz"]
+        allowed_origins = [
+            "https://resumesub.xyz",
+            "https://www.resumesub.xyz"
+        ]
         origin = request.headers.get("origin")
         if origin not in allowed_origins:
             raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
 
-    response = await call_next(request)
-    return response
+    return await call_next(request)
+
 
 # --- Include your routers with /api prefix ---
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
