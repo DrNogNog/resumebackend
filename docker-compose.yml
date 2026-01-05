@@ -12,23 +12,28 @@ services:
       - uploads:/app/build
     depends_on:
       - api
+    networks:
+      - backend
 
   api:
     build:
       context: ./Resume Builder
       dockerfile: Dockerfile
-
     env_file:
-      - .env        # <-- THIS is what loads everything
-
+      - .env
     environment:
       - ENV=production
-      - TEX_BIN=/usr/bin/xelatex   # override or ensure
-
+      - TEX_BIN=xelatex
     volumes:
       - uploads:/app/build
     expose:
       - "8000"
+    networks:
+      - backend
 
 volumes:
   uploads:
+
+networks:
+  backend:
+    driver: bridge
