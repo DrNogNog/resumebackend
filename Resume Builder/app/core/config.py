@@ -18,11 +18,11 @@ class Settings(BaseSettings):
     SMTP_USER: str
     SMTP_PASS: str
     STRIPE_WEBHOOK_SECRET: str
-    TEX_BIN: str = "xelatex"
+    TEX_BIN: str
 
     class Config:
         # Resolve .env relative to package root to work regardless of CWD
-        env_file = str(Path(__file__).resolve().parents[1] / ".env")
+        env_file = str(Path(__file__).resolve().parents[3] / ".env")
         extra = "ignore"  # Ignore any unknown env vars
         
 
