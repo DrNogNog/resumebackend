@@ -1,5 +1,7 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parents[4]  # ← resumebackend/
 
 class Settings(BaseSettings):
     DATABASE_URL: str
@@ -12,18 +14,20 @@ class Settings(BaseSettings):
     STRIPE_API_KEY: str
     PRO_PRICE_ID: str
     PRO_PLUS_PRICE_ID: str
-    FRONTEND_URL: str 
+    FRONTEND_URL: str
+
     SMTP_HOST: str
-    SMTP_PORT: str
+    SMTP_PORT: int
     SMTP_USER: str
     SMTP_PASS: str
+
     STRIPE_WEBHOOK_SECRET: str
     TEX_BIN: str
 
-    class Config:
-        # Resolve .env relative to package root to work regardless of CWD
-        env_file = str(Path(__file__).resolve().parents[3] / ".env")
-        extra = "ignore"  # Ignore any unknown env vars
-        
+    model_config = SettingsConfigDict(
+        env_file=str(BASE_DIR / ".env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 settings = Settings()
