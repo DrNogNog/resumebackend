@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from app.db.models import User, HarvardResumeInput, Resume, MITResumeInput, StanfordResumeInput, CosmosResumeInput, CelestialResumeInput, MonochromeResumeInput, NebulaResumeInput, YaleResumeInput
@@ -52,7 +52,7 @@ async def generate_resume(
     data: HarvardResumeInput,
     db: AsyncSession = Depends(get_db)
 ):
-    pdf_path = generate_pdf_from_latex('Harvard', data.dict())
+    pdf_bytes = generate_pdf_from_latex('Harvard', data.dict())
 
     resume = Resume(
         name=data.name,
@@ -63,14 +63,14 @@ async def generate_resume(
     # db.add(resume)
     # await db.commit()
 
-    return FileResponse(pdf_path, filename="resume.pdf")
+    return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": 'attachment; filename="resume.pdf"'})
 
 @router.post("/generate/MIT")
 async def generate_resume(
     data: MITResumeInput,
     db: AsyncSession = Depends(get_db)
 ):
-    pdf_path = generate_pdf_from_latex('MIT', data.dict())
+    pdf_bytes = generate_pdf_from_latex('MIT', data.dict())
     resume = Resume(
         name=data.name,
         template='MIT',
@@ -80,14 +80,14 @@ async def generate_resume(
     # db.add(resume)
     # await db.commit()
 
-    return FileResponse(pdf_path, filename="resume.pdf")
+    return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": 'attachment; filename="resume.pdf"'})
 
 @router.post("/generate/Stanford")
 async def generate_resume(
     data: StanfordResumeInput,
     db: AsyncSession = Depends(get_db)
 ):
-    pdf_path = generate_pdf_from_latex('Stanford', data.dict())
+    pdf_bytes = generate_pdf_from_latex('Stanford', data.dict())
 
     resume = Resume(
         name=data.name,
@@ -98,14 +98,14 @@ async def generate_resume(
     # db.add(resume)
     # await db.commit()
 
-    return FileResponse(pdf_path, filename="resume.pdf")
+    return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": 'attachment; filename="resume.pdf"'})
 
 @router.post("/generate/Yale")
 async def generate_resume(
     data: YaleResumeInput,
     db: AsyncSession = Depends(get_db)
 ):
-    pdf_path = generate_pdf_from_latex('Yale', data.dict())
+    pdf_bytes = generate_pdf_from_latex('Yale', data.dict())
 
     resume = Resume(
         name=data.full_name,
@@ -116,14 +116,14 @@ async def generate_resume(
     # db.add(resume)
     # await db.commit()
 
-    return FileResponse(pdf_path, filename="resume.pdf")
+    return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": 'attachment; filename="resume.pdf"'})
 
 @router.post("/generate/Cosmos")
 async def generate_resume(
     data: CosmosResumeInput,
     db: AsyncSession = Depends(get_db)
 ):
-    pdf_path = generate_pdf_from_latex('Cosmos', data.dict())
+    pdf_bytes = generate_pdf_from_latex('Cosmos', data.dict())
 
     resume = Resume(
         name=data.name,
@@ -134,14 +134,14 @@ async def generate_resume(
     # db.add(resume)
     # await db.commit()
 
-    return FileResponse(pdf_path, filename="resume.pdf")
+    return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": 'attachment; filename="resume.pdf"'})
 
 @router.post("/generate/Monochrome")
 async def generate_resume(
     data: MonochromeResumeInput,
     db: AsyncSession = Depends(get_db)
 ):
-    pdf_path = generate_pdf_from_latex('Monochrome', data.dict())
+    pdf_bytes = generate_pdf_from_latex('Monochrome', data.dict())
 
     resume = Resume(
         name=data.name,
@@ -152,14 +152,14 @@ async def generate_resume(
     # db.add(resume)
     # await db.commit()
 
-    return FileResponse(pdf_path, filename="resume.pdf")
+    return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": 'attachment; filename="resume.pdf"'})
 
 @router.post("/generate/Nebula")
 async def generate_resume(
     data: NebulaResumeInput,
     db: AsyncSession = Depends(get_db)
 ):
-    pdf_path = generate_pdf_from_latex('Nebula', data.dict())
+    pdf_bytes = generate_pdf_from_latex('Nebula', data.dict())
 
     resume = Resume(
         name=data.name,
@@ -170,14 +170,14 @@ async def generate_resume(
     # db.add(resume)
     # await db.commit()
 
-    return FileResponse(pdf_path, filename="resume.pdf")
+    return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": 'attachment; filename="resume.pdf"'})
 
 @router.post("/generate/Celestial")
 async def generate_resume(
     data: CelestialResumeInput,
     db: AsyncSession = Depends(get_db)
 ):
-    pdf_path = generate_pdf_from_latex('Celestial', data.dict())
+    pdf_bytes = generate_pdf_from_latex('Celestial', data.dict())
 
     resume = Resume(
         name=data.name,
@@ -188,7 +188,7 @@ async def generate_resume(
     # db.add(resume)
     # await db.commit()
 
-    return FileResponse(pdf_path, filename="resume.pdf")
+    return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": 'attachment; filename="resume.pdf"'})
 
 class SaveResumeRequest(BaseModel):
     template: str
@@ -201,16 +201,17 @@ async def save_resume_api(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    # Generate PDF file from template and payload
-    pdf_path = generate_pdf_from_latex(req.template, req.payload)
+    # Generate PDF bytes from template and payload
+    pdf_bytes = generate_pdf_from_latex(req.template, req.payload)
 
-    # Create Resume record and save path
+    # Create Resume record and save bytes to DB
     resume = Resume(
         user_id=current_user.id,
         name=req.name or req.payload.get("name") or "Untitled",
         template=req.template,
         payload=req.payload,
-        file_path=pdf_path
+        file_path=None,
+        file_data=pdf_bytes
     )
 
     db.add(resume)
@@ -233,7 +234,8 @@ async def download_resume(
         raise HTTPException(status_code=404, detail="Resume not found")
     if resume.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
-    if not resume.file_path or not os.path.exists(resume.file_path):
+    # Ensure there is a file (either stored in DB or on disk)
+    if not resume.file_data and (not resume.file_path or not os.path.exists(resume.file_path)):
         raise HTTPException(status_code=404, detail="File not found")
 
     # Ensure user has downloads remaining
@@ -245,6 +247,10 @@ async def download_resume(
     db.add(current_user)
     await db.commit()
     await db.refresh(current_user)
+
+    if resume.file_data:
+        filename = f"{resume.name or 'resume'}.pdf"
+        return Response(content=resume.file_data, media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="{filename}"'})
 
     filename = os.path.basename(resume.file_path)
     return FileResponse(resume.file_path, filename=filename)

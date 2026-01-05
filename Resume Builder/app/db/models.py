@@ -1,5 +1,5 @@
 # app/models/user_model.py
-from sqlalchemy import Boolean, Column, Integer, String, Enum, JSON, DateTime, ForeignKey, Text
+from sqlalchemy import Boolean, Column, Integer, String, Enum, JSON, DateTime, ForeignKey, Text, LargeBinary
 import enum
 from app.core.sync_database import Base 
 from sqlalchemy.orm import relationship
@@ -71,6 +71,7 @@ class Resume(Base):
     template = Column(String)
     payload = Column(JSON)
     file_path = Column(String, nullable=True)
+    file_data = Column(LargeBinary, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="resumes")
