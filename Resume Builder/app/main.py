@@ -61,20 +61,25 @@ async def lock_api(request: Request, call_next):
         # Origin check - fixed indentation and logic
         origin = request.headers.get("origin")
         if origin:
-            # Allow exact base origins
+            # Allow exact production domains
             if origin in base_origins:
                 return await call_next(request)
 
-            # In non-production: allow Vercel previews and localhost
-            if ENV != "production":
-                if (
-                    origin.endswith(".vercel.app") or
-                    origin.startswith("http://localhost") or
-                    origin.startswith("http://127.0.0.1")
-                ):
-                    return await call_next(request)
+            # Allow ANY Vercel origin (preview or production)
+            if "vercel.app" in origin:
+                return await call_next(request)
 
-            # If none of the above match → block
+            # Allow localhost variants
+            if origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1"):
+                return await call_next(request)
+
+            # In production, block anything else
+            if ENV == "production":
+                raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
+            # In development, optionally allow all (for testing)
+            # remove the line below if you want strict in dev too
+            # return await call_next(request)
+
             raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
 
     # Proceed if not /api path
