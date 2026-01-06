@@ -1,6 +1,39 @@
 version: "3.8"
 
 services:
+  db:
+    image: postgres:15
+    container_name: resume-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: resumes
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # optional: exposes to host
+    networks:
+      - backend
+
+  api:
+    build:
+      context: ./Resume Builder
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      - ENV=production
+      - TEX_BIN=xelatex
+      - DATABASE_URL=postgresql+asyncpg://postgres:1234@db:5432/resumes
+    volumes:
+      - uploads:/app/build
+    depends_on:
+      - db
+    expose:
+      - "8000"
+    networks:
+      - backend
+
   nginx:
     image: nginx:stable
     ports:
@@ -15,24 +48,9 @@ services:
     networks:
       - backend
 
-  api:
-    build:
-      context: ./Resume Builder
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    environment:
-      - ENV=production
-      - TEX_BIN=xelatex
-    volumes:
-      - uploads:/app/build
-    expose:
-      - "8000"
-    networks:
-      - backend
-
 volumes:
   uploads:
+  pgdata:
 
 networks:
   backend:
