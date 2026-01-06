@@ -26,6 +26,7 @@ services:
       - TEX_BIN=xelatex
       - DATABASE_URL=postgresql+asyncpg://postgres:1234@db:5432/resumes
     volumes:
+      - ./Resume Builder:/app
       - uploads:/app/build
     depends_on:
       - db
