@@ -26,3 +26,8 @@ jinja2==3.1.6
 
 python-multipart==0.0.20
 pg8000
+aiosmtplib
+pillow
+pytesseract
+docx2txt
+pdfplumber

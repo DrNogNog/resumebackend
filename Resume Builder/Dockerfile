@@ -1,54 +1,48 @@
 # =========================
-# Runtime Stage (Minimal PDF + Python runtime)
+# Builder Stage
+# =========================
+FROM python:3.11-slim AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc python3-dev libffi-dev libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+COPY requirements.prod.txt .
+
+RUN pip install --upgrade pip wheel && \
+    pip wheel --no-cache-dir -r requirements.prod.txt -w /build
+
+# =========================
+# Runtime Stage
 # =========================
 FROM python:3.11-slim
 
-# Install runtime deps + minimal LaTeX dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libffi-dev libssl-dev wget ca-certificates fontconfig \
-    fonts-dejavu-core perl bzip2 xz-utils unzip curl \
+    libffi-dev libssl-dev wget ca-certificates fontconfig fonts-dejavu-core perl \
     && rm -rf /var/lib/apt/lists/*
 
-# -------------------------
-# Install TinyTeX (minimal PDF engine)
-# -------------------------
-RUN wget -qO- "https://yihui.org/tinytex/install-bin-unix.sh" | sh -s -- --no-path --admin --no-doc && \
-    mv /root/.TinyTeX /opt/TinyTeX
+# Install TinyTeX (PDF engine)
+RUN wget -qO- "https://yihui.org/tinytex/install-bin-unix.sh" | sh -s -- --no-path && \
+    mv /root/.TinyTeX /opt/TinyTeX && \
+    ln -s /opt/TinyTeX/bin/x86_64-linux/tlmgr /usr/local/bin/tlmgr
 
 ENV PATH="/opt/TinyTeX/bin/x86_64-linux:${PATH}"
 
-# Minimal essential packages
 RUN tlmgr update --self && tlmgr install \
-    xetex latexmk fontspec && \
-    tlmgr clean --all
-
-# Enable on-demand package installation
-RUN echo "export PATH=/opt/TinyTeX/bin/x86_64-linux:\$PATH" >> /etc/profile.d/tinytex.sh && \
-    echo "export TEXMFHOME=/app/texmf" >> /etc/profile.d/tinytex.sh && \
-    echo "export TEXLIVE_INSTALLER_EXTRA_OPTIONS='--no-interaction'" >> /etc/profile.d/tinytex.sh
-
-# Helper script to automatically install missing packages
-RUN mkdir -p /usr/local/bin && \
-    echo '#!/bin/sh\n\
-tlmgr install --reinstall "$1"\n\
-exec "$@"' > /usr/local/bin/tlmgr-wrapper && \
-    chmod +x /usr/local/bin/tlmgr-wrapper
-
-# -------------------------
-# Cleanup unnecessary packages
-# -------------------------
-RUN apt-get purge -y --auto-remove wget curl bzip2 xz-utils unzip perl && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    xetex collection-xetex collection-latexrecommended \
+    collection-latexextra collection-fontsrecommended fontspec latexmk
 
 WORKDIR /app
 
-# Copy prebuilt wheels from builder
-COPY --from=builder /wheels /wheels
+# Copy prebuilt wheels from the builder stage (note the stage name `builder`)
+COPY --from=builder /build/*.whl /wheels/
 
 # Install all wheels offline
-RUN pip install --no-index --find-links=/wheels /wheels/*.whl && rm -rf /wheels
+RUN pip install --no-index --find-links=/wheels /wheels/*.whl
 
-# Copy application
+# Copy app code
 COPY app ./app
 
 EXPOSE 8000
