@@ -1,81 +1,56 @@
-# Use Python 3.11 slim base
+# =========================
+# Runtime Stage (Minimal PDF + Python runtime)
+# =========================
 FROM python:3.11-slim
 
-# ------------------------
-# System dependencies
-# ------------------------
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        wget \
-        ca-certificates \
-        bzip2 \
-        xz-utils \
-        fontconfig \
-        fonts-dejavu-core \
-        fonts-noto-core \
-        unzip \
-        perl \
-        build-essential \
-        gcc \
-        g++ \
-        python3-dev \
-        libffi-dev \
-        libssl-dev \
-        libcurl4-openssl-dev \
-        rustc \
-        cargo \
-        git && \
-    rm -rf /var/lib/apt/lists/*
+# Install runtime deps + minimal LaTeX dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libffi-dev libssl-dev wget ca-certificates fontconfig \
+    fonts-dejavu-core perl bzip2 xz-utils unzip curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# ------------------------
-# Install TinyTeX
-# ------------------------
-RUN wget -qO- "https://yihui.org/tinytex/install-bin-unix.sh" | sh -s -- --no-path && \
-    mv /root/.TinyTeX /opt/TinyTeX && \
-    ln -s /opt/TinyTeX/bin/x86_64-linux/tlmgr /usr/local/bin/tlmgr
+# -------------------------
+# Install TinyTeX (minimal PDF engine)
+# -------------------------
+RUN wget -qO- "https://yihui.org/tinytex/install-bin-unix.sh" | sh -s -- --no-path --admin --no-doc && \
+    mv /root/.TinyTeX /opt/TinyTeX
 
 ENV PATH="/opt/TinyTeX/bin/x86_64-linux:${PATH}"
 
-RUN tlmgr update --self && \
-    tlmgr install \
-        xetex \
-        collection-xetex \
-        collection-latexrecommended \
-        collection-latexextra \
-        collection-fontsrecommended \
-        fontspec \
-        latexmk
+# Minimal essential packages
+RUN tlmgr update --self && tlmgr install \
+    xetex latexmk fontspec && \
+    tlmgr clean --all
 
-# ------------------------
-# Set working directory
-# ------------------------
+# Enable on-demand package installation
+RUN echo "export PATH=/opt/TinyTeX/bin/x86_64-linux:\$PATH" >> /etc/profile.d/tinytex.sh && \
+    echo "export TEXMFHOME=/app/texmf" >> /etc/profile.d/tinytex.sh && \
+    echo "export TEXLIVE_INSTALLER_EXTRA_OPTIONS='--no-interaction'" >> /etc/profile.d/tinytex.sh
+
+# Helper script to automatically install missing packages
+RUN mkdir -p /usr/local/bin && \
+    echo '#!/bin/sh\n\
+tlmgr install --reinstall "$1"\n\
+exec "$@"' > /usr/local/bin/tlmgr-wrapper && \
+    chmod +x /usr/local/bin/tlmgr-wrapper
+
+# -------------------------
+# Cleanup unnecessary packages
+# -------------------------
+RUN apt-get purge -y --auto-remove wget curl bzip2 xz-utils unzip perl && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 WORKDIR /app
 
-# ------------------------
-# Python dependencies
-# ------------------------
-COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt \
-        -i https://pypi.tuna.tsinghua.edu.cn/simple \
-        --trusted-host pypi.tuna.tsinghua.edu.cn \
-        --default-timeout=1000 \
-        --retries=20
+# Copy prebuilt wheels from builder
+COPY --from=builder /wheels /wheels
 
-# Optional: prevent backports.zoneinfo issues on older Python versions
-RUN echo "backports.zoneinfo; python_version < '3.9'" >> requirements.txt || true
+# Install all wheels offline
+RUN pip install --no-index --find-links=/wheels /wheels/*.whl && rm -rf /wheels
 
-# ------------------------
-# Copy application code
-# ------------------------
+# Copy application
 COPY app ./app
 
-# ------------------------
-# Expose port
-# ------------------------
 EXPOSE 8000
 
-# ------------------------
-# Default command
-# ------------------------
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
