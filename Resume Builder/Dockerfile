@@ -19,8 +19,10 @@ RUN pip install --upgrade pip wheel && \
 # =========================
 FROM python:3.11-slim
 
+# Install OS dependencies and postgresql-client early
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libffi-dev libssl-dev wget ca-certificates fontconfig fonts-dejavu-core perl \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Install TinyTeX (PDF engine)
@@ -36,15 +38,19 @@ RUN tlmgr update --self && tlmgr install \
 
 WORKDIR /app
 
-# Copy prebuilt wheels from the builder stage (note the stage name `builder`)
+# Copy prebuilt wheels from the builder stage
 COPY --from=builder /build/*.whl /wheels/
 
 # Install all wheels offline
 RUN pip install --no-index --find-links=/wheels /wheels/*.whl
-RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
+
 # Copy app code
 COPY app ./app
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Use a robust start script that waits for Postgres
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]
