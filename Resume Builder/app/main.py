@@ -35,8 +35,7 @@ else:
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://resumesub.xyz",
-    "https://www.resumesub.xyz",
+    "https://www.resumesub.xyz",  # frontend origin
 ]
 
 app.add_middleware(
@@ -52,9 +51,15 @@ app.add_middleware(
 # -------------------------
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
-    # ✅ HARD STOP for CORS preflight
+    # ✅ Handle preflight OPTIONS immediately
     if request.method == "OPTIONS":
-        return Response(status_code=204)
+        # Return proper CORS headers for preflight
+        response = Response(status_code=204)
+        response.headers["Access-Control-Allow-Origin"] = "https://www.resumesub.xyz"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-API-Key"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        return response
 
     if request.url.path.startswith("/api"):
         # API key check
@@ -62,11 +67,8 @@ async def lock_api(request: Request, call_next):
         if key != SECRET_KEY:
             raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
 
-        # Origin check (POST/GET only)
-        allowed_origins = {
-            "https://resumesub.xyz",
-            "https://www.resumesub.xyz",
-        }
+        # Origin check
+        allowed_origins = {"https://www.resumesub.xyz"}
         origin = request.headers.get("origin")
         if origin not in allowed_origins:
             raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
