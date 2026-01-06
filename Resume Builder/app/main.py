@@ -58,23 +58,26 @@ async def lock_api(request: Request, call_next):
         if key != SECRET_KEY:
             raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
 
-        # Origin check
+        # Origin check - fixed indentation and logic
         origin = request.headers.get("origin")
         if origin:
-            # Always allow the base origins
+            # Allow exact base origins
             if origin in base_origins:
-                pass
-            # In development/preview: allow Vercel preview URLs and localhost variants
-            elif ENV != "production" and (
-                origin.endswith(".vercel.app") or
-                origin.startswith("http://localhost") or
-                origin.startswith("http://127.0.0.1")
-            ):
-                pass
-            else:
-                raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
+                return await call_next(request)
 
-    # Let CORSMiddleware handle preflight OPTIONS automatically
+            # In non-production: allow Vercel previews and localhost
+            if ENV != "production":
+                if (
+                    origin.endswith(".vercel.app") or
+                    origin.startswith("http://localhost") or
+                    origin.startswith("http://127.0.0.1")
+                ):
+                    return await call_next(request)
+
+            # If none of the above match → block
+            raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
+
+    # Proceed if not /api path
     return await call_next(request)
 
 # -------------------------
