@@ -1,9 +1,9 @@
+# Use Python 3.11 slim base
 FROM python:3.11-slim
 
-# Install system dependencies:
-# - TinyTeX prerequisites
-# - Build tools for compiling Python wheels (many packages in your requirements need this)
-# - Git for potential package installs
+# ------------------------
+# System dependencies
+# ------------------------
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         wget \
@@ -27,13 +27,15 @@ RUN apt-get update && \
         git && \
     rm -rf /var/lib/apt/lists/*
 
-# Install TinyTeX (user-friendly way, non-root path)
+# ------------------------
+# Install TinyTeX
+# ------------------------
 RUN wget -qO- "https://yihui.org/tinytex/install-bin-unix.sh" | sh -s -- --no-path && \
     mv /root/.TinyTeX /opt/TinyTeX && \
     ln -s /opt/TinyTeX/bin/x86_64-linux/tlmgr /usr/local/bin/tlmgr
 
-# Add TinyTeX to PATH and update TeX packages
 ENV PATH="/opt/TinyTeX/bin/x86_64-linux:${PATH}"
+
 RUN tlmgr update --self && \
     tlmgr install \
         xetex \
@@ -44,29 +46,36 @@ RUN tlmgr update --self && \
         fontspec \
         latexmk
 
-# Set up app directory
+# ------------------------
+# Set working directory
+# ------------------------
 WORKDIR /app
 
-# Copy and install Python dependencies with reliability fixes
+# ------------------------
+# Python dependencies
+# ------------------------
 COPY requirements.txt .
-
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt \
         -i https://pypi.tuna.tsinghua.edu.cn/simple \
         --trusted-host pypi.tuna.tsinghua.edu.cn \
         --default-timeout=1000 \
-        --retries=20 \
-        --use-deprecated=legacy-resolver
+        --retries=20
 
-# Optional: Prevent backports.zoneinfo issues on Python 3.11+
-# If it's pulled in transitively, this skips it safely
+# Optional: prevent backports.zoneinfo issues on older Python versions
 RUN echo "backports.zoneinfo; python_version < '3.9'" >> requirements.txt || true
 
+# ------------------------
 # Copy application code
+# ------------------------
 COPY app ./app
 
+# ------------------------
 # Expose port
+# ------------------------
 EXPOSE 8000
 
-# Run the FastAPI app
+# ------------------------
+# Default command
+# ------------------------
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

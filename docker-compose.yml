@@ -11,13 +11,13 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"  # optional: host access
+      - "5432:5432"
     networks:
       - backend
 
   api:
     build:
-      context: ./Resume Builder
+      context: ./Resume Builder   # your Dockerfile location
       dockerfile: Dockerfile
     container_name: resumebackend-api
     env_file:
@@ -27,7 +27,7 @@ services:
       - TEX_BIN=xelatex
       - DATABASE_URL=postgresql+asyncpg://postgres:1234@db:5432/resumes
     volumes:
-      - ./Resume Builder:/app      # full project mount (includes alembic)
+      - ./Resume Builder:/app      # mount the full project (includes alembic)
       - uploads:/app/build
     depends_on:
       - db
