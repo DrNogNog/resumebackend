@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException, Response
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
@@ -30,13 +30,19 @@ else:
     app = FastAPI(title="Resume Builder API")
 
 # -------------------------
-# CORS configuration
+# CORS configuration - let FastAPI handle it properly
 # -------------------------
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://www.resumesub.xyz",  # frontend origin
+    "https://resumesub.xyz",
+    "https://www.resumesub.xyz",
 ]
+
+# In development, allow Vercel preview URLs (all end with .vercel.app)
+if ENV != "production":
+    origins.append("https://resumefrontend-65glk9ccl-gordonng26-gmailcoms-projects.vercel.app")  # optional: specific preview
+    # Or allow all Vercel previews dynamically in middleware below
 
 app.add_middleware(
     CORSMiddleware,
@@ -47,32 +53,32 @@ app.add_middleware(
 )
 
 # -------------------------
-# Middleware: Lock /api
+# Middleware: Lock /api (API key + origin protection)
 # -------------------------
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
-    # ✅ Handle preflight OPTIONS immediately
-    if request.method == "OPTIONS":
-        # Return proper CORS headers for preflight
-        response = Response(status_code=204)
-        response.headers["Access-Control-Allow-Origin"] = "https://www.resumesub.xyz"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-API-Key"
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        return response
-
     if request.url.path.startswith("/api"):
-        # API key check
+        # API key check (keep this for security)
         key = request.headers.get("x-api-key")
         if key != SECRET_KEY:
             raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
 
-        # Origin check
-        allowed_origins = {"https://www.resumesub.xyz"}
+        # Origin check - strict in production, flexible in development
         origin = request.headers.get("origin")
-        if origin not in allowed_origins:
-            raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
+        if origin:
+            allowed = {
+                "https://resumesub.xyz",
+                "https://www.resumesub.xyz",
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+            }
+            # Allow all Vercel preview domains in non-production
+            if ENV != "production" and (origin.endswith(".vercel.app") or origin in allowed):
+                pass
+            elif origin not in allowed:
+                raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
 
+    # Let CORSMiddleware handle OPTIONS preflight - no manual response needed
     return await call_next(request)
 
 # -------------------------
