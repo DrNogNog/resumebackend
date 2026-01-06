@@ -30,55 +30,51 @@ else:
     app = FastAPI(title="Resume Builder API")
 
 # -------------------------
-# CORS configuration - let FastAPI handle it properly
+# CORS configuration - expanded and flexible
 # -------------------------
-origins = [
+base_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://resumesub.xyz",
     "https://www.resumesub.xyz",
 ]
 
-# In development, allow Vercel preview URLs (all end with .vercel.app)
-if ENV != "production":
-    origins.append("https://resumefrontend-65glk9ccl-gordonng26-gmailcoms-projects.vercel.app")  # optional: specific preview
-    # Or allow all Vercel previews dynamically in middleware below
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=base_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # -------------------------
-# Middleware: Lock /api (API key + origin protection)
+# Middleware: Lock /api (API key + smart origin protection)
 # -------------------------
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
     if request.url.path.startswith("/api"):
-        # API key check (keep this for security)
+        # API key check - keep this for security
         key = request.headers.get("x-api-key")
         if key != SECRET_KEY:
             raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
 
-        # Origin check - strict in production, flexible in development
+        # Origin check
         origin = request.headers.get("origin")
         if origin:
-            allowed = {
-                "https://resumesub.xyz",
-                "https://www.resumesub.xyz",
-                "http://localhost:3000",
-                "http://127.0.0.1:3000",
-            }
-            # Allow all Vercel preview domains in non-production
-            if ENV != "production" and (origin.endswith(".vercel.app") or origin in allowed):
+            # Always allow the base origins
+            if origin in base_origins:
                 pass
-            elif origin not in allowed:
+            # In development/preview: allow Vercel preview URLs and localhost variants
+            elif ENV != "production" and (
+                origin.endswith(".vercel.app") or
+                origin.startswith("http://localhost") or
+                origin.startswith("http://127.0.0.1")
+            ):
+                pass
+            else:
                 raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
 
-    # Let CORSMiddleware handle OPTIONS preflight - no manual response needed
+    # Let CORSMiddleware handle preflight OPTIONS automatically
     return await call_next(request)
 
 # -------------------------
