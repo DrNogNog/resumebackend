@@ -1,13 +1,22 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
-# Import your routers
-from app.api.routes import users, resume_routes, generation, auth, usage, subscriptions, webhooks, suggestions
+# Import routers
+from app.api.routes import (
+    users,
+    resume_routes,
+    generation,
+    auth,
+    usage,
+    subscriptions,
+    webhooks,
+    suggestions,
+)
 
 # Environment
 ENV = os.getenv("ENV", "development")
-SECRET_KEY = os.getenv("SECRET_KEY")  # backend secret key
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # Disable docs in production
 if ENV == "production":
@@ -15,19 +24,20 @@ if ENV == "production":
         title="Resume Builder API",
         docs_url=None,
         redoc_url=None,
-        openapi_url=None
+        openapi_url=None,
     )
 else:
     app = FastAPI(title="Resume Builder API")
 
-# CORS setup (allow dev + production frontend)
+# -------------------------
+# CORS configuration
+# -------------------------
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://resumesub.xyz",
     "https://www.resumesub.xyz",
 ]
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,30 +47,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Middleware: Lock /api endpoints ---
+# -------------------------
+# Middleware: Lock /api
+# -------------------------
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
-    # 🚨 Allow CORS preflight immediately
+    # ✅ HARD STOP for CORS preflight
     if request.method == "OPTIONS":
-        return await call_next(request)
+        return Response(status_code=204)
 
     if request.url.path.startswith("/api"):
+        # API key check
         key = request.headers.get("x-api-key")
         if key != SECRET_KEY:
             raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
 
-        allowed_origins = [
+        # Origin check (POST/GET only)
+        allowed_origins = {
             "https://resumesub.xyz",
-            "https://www.resumesub.xyz"
-        ]
+            "https://www.resumesub.xyz",
+        }
         origin = request.headers.get("origin")
         if origin not in allowed_origins:
             raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
 
     return await call_next(request)
 
-
-# --- Include your routers with /api prefix ---
+# -------------------------
+# Routers
+# -------------------------
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(resume_routes.router, prefix="/api/resume", tags=["Resume"])
 app.include_router(generation.router, prefix="/api/gen", tags=["Generator"])
