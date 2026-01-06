@@ -41,7 +41,7 @@ COPY --from=builder /build/*.whl /wheels/
 
 # Install all wheels offline
 RUN pip install --no-index --find-links=/wheels /wheels/*.whl
-
+RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
 # Copy app code
 COPY app ./app
 
