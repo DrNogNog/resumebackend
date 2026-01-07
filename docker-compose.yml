@@ -39,7 +39,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: resumes
+      POSTGRES_DB: resume_builder
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
