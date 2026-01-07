@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import os
@@ -30,7 +30,7 @@ if ENV == "production":
 else:
     app = FastAPI(title="Resume Builder API")
 
-# CORS (unchanged)
+# CORS
 base_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -47,12 +47,18 @@ app.add_middleware(
 )
 
 # -------------------------
-# Fixed Middleware: Return JSONResponse instead of raising
+# Middleware: API Protection with Public Auth Bypass
 # -------------------------
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
     if request.url.path.startswith("/api"):
-        # API key check
+        # === PUBLIC AUTH ENDPOINTS - NO KEY REQUIRED ===
+        # Allow signup, login, verify, password reset, etc.
+        if request.url.path.startswith("/api/auth/"):
+            response = await call_next(request)
+            return response
+
+        # === PROTECTED ENDPOINTS - REQUIRE API KEY ===
         key = request.headers.get("x-api-key")
         if key != SECRET_KEY:
             return JSONResponse(
@@ -60,36 +66,28 @@ async def lock_api(request: Request, call_next):
                 content={"detail": "Forbidden: Invalid API Key"}
             )
 
-        # Origin check
+        # === ORIGIN CHECK (for protected endpoints) ===
         origin = request.headers.get("origin")
         if origin:
-            # Allow exact production domains
             if origin in base_origins:
                 pass
-            # Allow any Vercel preview/deploy
             elif "vercel.app" in origin:
                 pass
-            # Allow localhost variants
             elif origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1"):
                 pass
-            # Block everything else in production
             elif ENV == "production":
                 return JSONResponse(
                     status_code=403,
                     content={"detail": "Forbidden: Invalid Origin"}
                 )
-            else:
-                # In development: allow unknown origins (optional – remove if you want strict)
-                pass
-        # If no origin header (e.g., curl, Postman), allow if key is valid
-        # (you can block these too if desired)
+            # In dev: allow unknown origins
 
-    # Proceed to route handler
+    # Proceed for non-/api routes or allowed cases
     response = await call_next(request)
     return response
 
 # -------------------------
-# Routers (unchanged)
+# Routers
 # -------------------------
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(resume_routes.router, prefix="/api/resume", tags=["Resume"])
