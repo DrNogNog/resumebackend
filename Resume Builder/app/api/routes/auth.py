@@ -125,29 +125,31 @@ def login(
 
 FRONTEND_URL = "https://www.resumesub.xyz"  # your frontend domain
 
-@router.get("/verify-email")
+@router.post("/verify-email")
 async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     """
-    Verifies a user's email using the token in the query parameter.
-    Example link: /verify-email?token=<token>
+    Verifies a user's email using the token provided in the request body.
+    Returns JSON so the frontend can display status messages.
     """
-
     # 1️⃣ Find user by verification token
     result = await db.execute(select(User).where(User.verification_token == token))
     user = result.scalars().first()
 
     if not user:
         # Token invalid or already used
-        raise HTTPException(status_code=400, detail="Invalid or expired token")
+        return {"status": "error", "message": "Invalid or expired token"}
+
+    if user.is_verified:
+        # User already verified
+        return {"status": "already_verified", "message": "Email already verified"}
 
     # 2️⃣ Mark user as verified
     user.is_verified = True
     user.verification_token = None  # remove token after use
     await db.commit()
 
-    # 3️⃣ Redirect to frontend success page
-    redirect_url = f"{FRONTEND_URL}/verified?email={user.email}"
-    return RedirectResponse(url=redirect_url)
+    # 3️⃣ Return success JSON
+    return {"status": "success", "message": "Email verified successfully!"}
 
 
 @router.post("/request-password-reset")
