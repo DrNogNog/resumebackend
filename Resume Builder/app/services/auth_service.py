@@ -149,24 +149,21 @@ async def signup_user(db: AsyncSession, name: str, email: str, password: str) ->
     if existing_user:
         raise ValueError("Email already registered")
 
-    # 2️⃣ Create verification token
+    # 2️⃣ Create verification token & hash password
     verification_token = str(uuid.uuid4())
-
-    # 3️⃣ Hash password
     hashed_password = hash_password(password)
 
-    # 4️⃣ Create user instance with default free plan
+    # 3️⃣ Create user instance
     user = User(
         name=name,
         email=email,
         hashed_password=hashed_password,
         verification_token=verification_token,
     )
-    
     db.add(user)
-    await db.commit()
-    await db.refresh(user)
+    await db.flush()  # Assigns user.id without committing yet
 
+    # 4️⃣ Create default free subscription
     free_subscription = Subscription(
         user_id=user.id,
         stripe_subscription_id=str(uuid.uuid4()),  # placeholder
@@ -174,9 +171,12 @@ async def signup_user(db: AsyncSession, name: str, email: str, password: str) ->
         status="active"
     )
     db.add(free_subscription)
+
+    # 5️⃣ Commit both user + subscription in a single transaction
     await db.commit()
+    await db.refresh(user)
     await db.refresh(free_subscription)
-    
+
     return user
 
 def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
