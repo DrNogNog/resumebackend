@@ -144,40 +144,42 @@ def rotate_refresh_token(db: Session, user: User) -> str:
 # =====================
 async def signup_user(db: AsyncSession, name: str, email: str, password: str) -> User:
     # 1️⃣ Check if user already exists
-    result = await db.execute(select(User).where(User.email == email))
-    existing_user = result.scalar_one_or_none()
-    if existing_user:
-        raise ValueError("Email already registered")
+    try:
+        result = await db.execute(select(User).where(User.email == email))
+        existing_user = result.scalar_one_or_none()
+        if existing_user:
+            raise ValueError("Email already registered")
 
-    # 2️⃣ Create verification token & hash password
-    verification_token = str(uuid.uuid4())
-    hashed_password = hash_password(password)
+        # 2️⃣ Create verification token & hash password
+        verification_token = str(uuid.uuid4())
+        hashed_password = hash_password(password)
 
-    # 3️⃣ Create user instance
-    user = User(
-        name=name,
-        email=email,
-        hashed_password=hashed_password,
-        verification_token=verification_token,
-    )
-    db.add(user)
-    await db.flush()  # Assigns user.id without committing yet
+        # 3️⃣ Create user instance
+        user = User(
+            name=name,
+            email=email,
+            hashed_password=hashed_password,
+            verification_token=verification_token,
+        )
+        db.add(user)
+        await db.flush()  # Assigns user.id without committing yet
 
-    # 4️⃣ Create default free subscription
-    free_subscription = Subscription(
-        user_id=user.id,
-        stripe_subscription_id=str(uuid.uuid4()),  # placeholder
-        plan=PlanEnum.free,
-        status="active"
-    )
-    db.add(free_subscription)
-
-    # 5️⃣ Commit both user + subscription in a single transaction
-    await db.commit()
-    await db.refresh(user)
-    await db.refresh(free_subscription)
-
-    return user
+        # 4️⃣ Create default free subscription
+        free_subscription = Subscription(
+            user_id=user.id,
+            stripe_subscription_id=str(uuid.uuid4()),
+            plan=PlanEnum.free,
+            status="active"
+        )
+        db.add(free_subscription)
+        await db.commit()
+        await db.refresh(user)
+        await db.refresh(free_subscription)
+        return user
+    except Exception as e:
+        await db.rollback()
+        print("❌ signup_user error:", e)
+        raise
 
 def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
     user = db.query(User).filter(User.email == email).first()
