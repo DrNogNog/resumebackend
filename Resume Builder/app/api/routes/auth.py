@@ -124,31 +124,30 @@ def login(
     }
 
 FRONTEND_URL = "https://www.resumesub.xyz"  # your frontend domain
-
+from fastapi.responses import JSONResponse
+class VerifyEmailRequest(BaseModel):
+    token: str
 @router.post("/verify-email")
-async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
-    """
-    Verifies a user's email using the token provided in the request body.
-    Returns JSON so the frontend can display status messages.
-    """
-    # 1️⃣ Find user by verification token
+async def verify_email(payload: VerifyEmailRequest, db: AsyncSession = Depends(get_db)):
+    token = payload.token
+
+    # Find user by token
     result = await db.execute(select(User).where(User.verification_token == token))
     user = result.scalars().first()
 
     if not user:
-        # Token invalid or already used
-        return {"status": "error", "message": "Invalid or expired token"}
+        return JSONResponse({"status": "error", "message": "Invalid or expired token"}, status_code=400)
 
     if user.is_verified:
-        # User already verified
         return {"status": "already_verified", "message": "Email already verified"}
 
-    # 2️⃣ Mark user as verified
+    # Mark user as verified
     user.is_verified = True
-    user.verification_token = None  # remove token after use
+    user.verification_token = None
+    db.add(user)
     await db.commit()
+    await db.refresh(user)  # ensure changes persist
 
-    # 3️⃣ Return success JSON
     return {"status": "success", "message": "Email verified successfully!"}
 
 
