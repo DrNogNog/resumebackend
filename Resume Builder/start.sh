@@ -1,15 +1,15 @@
 #!/bin/sh
-# start.sh
+set -e
 
-# Wait for Postgres to be ready
 echo "Waiting for Postgres..."
-until pg_isready -h db -p 5432 -U postgres; do
+
+until pg_isready -h resume-postgres -p 5432 -U postgres; do
   sleep 1
 done
-echo "Postgres is ready!"
 
-# Run Alembic migrations
+echo "Postgres is ready. Running migrations..."
+
 alembic upgrade head
 
-# Start FastAPI
+echo "Starting FastAPI..."
 exec uvicorn app.main:app --host 0.0.0.0 --port 8000

@@ -14,18 +14,22 @@ COPY requirements.prod.txt .
 RUN pip install --upgrade pip wheel && \
     pip wheel --no-cache-dir -r requirements.prod.txt -w /build
 
+
 # =========================
 # Runtime Stage
 # =========================
 FROM python:3.11-slim
 
-# Install OS dependencies and postgresql-client early
+# --- OS + postgres client (pg_isready) ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libffi-dev libssl-dev wget ca-certificates fontconfig fonts-dejavu-core perl \
     postgresql-client \
+    libffi-dev libssl-dev wget ca-certificates fontconfig fonts-dejavu-core perl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install TinyTeX (PDF engine)
+# --- hard fail if pg_isready missing ---
+RUN which pg_isready && pg_isready --version
+
+# --- Install TinyTeX ---
 RUN wget -qO- "https://yihui.org/tinytex/install-bin-unix.sh" | sh -s -- --no-path && \
     mv /root/.TinyTeX /opt/TinyTeX && \
     ln -s /opt/TinyTeX/bin/x86_64-linux/tlmgr /usr/local/bin/tlmgr
@@ -38,19 +42,16 @@ RUN tlmgr update --self && tlmgr install \
 
 WORKDIR /app
 
-# Copy prebuilt wheels from the builder stage
+# --- Install Python wheels ---
 COPY --from=builder /build/*.whl /wheels/
-
-# Install all wheels offline
 RUN pip install --no-index --find-links=/wheels /wheels/*.whl
 
-# Copy app code
+# --- Copy app ---
 COPY app ./app
 
-EXPOSE 8000
-
-# Use a robust start script that waits for Postgres
+# --- Start script ---
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
+EXPOSE 8000
 CMD ["/app/start.sh"]
