@@ -9,8 +9,6 @@ from alembic import context
 
 # Import the synchronous Base for Alembic
 from app.core.sync_database import Base  # <-- sync engine Base
-from app.db.models import Resume  # <-- your models
-from app.db.models import User, Subscription
 # this is the Alembic Config object
 config = context.config
 
@@ -18,6 +16,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+from app.models import *
 # Target metadata for 'autogenerate'
 target_metadata = Base.metadata
 
