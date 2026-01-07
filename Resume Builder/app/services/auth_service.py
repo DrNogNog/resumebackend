@@ -11,24 +11,23 @@ import os
 import asyncio
 from app.db.models import User, PlanEnum,Subscription
 from app.core.database import get_db
-import smtplib
-from email.mime.text import MIMEText
 import logging
-from email.mime.multipart import MIMEMultipart
-import ssl
+import httpx
+
+# Mailgun configuration (expects MAILGUN_DOMAIN and MAILGUN_API_KEY in environment)
+MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
+MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
+MAILGUN_BASE_URL = os.getenv("MAILGUN_BASE_URL", "https://api.mailgun.net/v3")
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from concurrent.futures import ThreadPoolExecutor
-import aiosmtplib
 from app.core.sync_database import get_db_sync
 
 load_dotenv()
 
-SMTP_HOST = os.getenv("SMTP_HOST")
-SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SMTP_USER = os.getenv("SMTP_USER")
-SMTP_PASS = os.getenv("SMTP_PASS")
+
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 executor = ThreadPoolExecutor(max_workers=2)
 logger = logging.getLogger(__name__)
@@ -36,13 +35,10 @@ logger = logging.getLogger(__name__)
 async def send_verification_email_async(user_email: str, token: str):
     verification_url = f"{FRONTEND_URL}/verify-email?token={token}"
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = "Verify your Resume account"
-    msg["From"] = f"Resume <{SMTP_USER}>"
-    msg["To"] = user_email
+    subject = "Verify your Resume account"
+    from_email = f"Resume <{SMTP_USER or f'no-reply@{MAILGUN_DOMAIN}'}>"
 
-    text_body = f"""
-Welcome to Resume!
+    text_body = f"""Welcome to Resume!
 
 Verify your email by clicking the link below:
 
@@ -51,8 +47,7 @@ Verify your email by clicking the link below:
 If you didn't create this account, you can safely ignore this email.
 """
 
-    html_body = f"""
-<html>
+    html_body = f"""<html>
   <body style="font-family: Arial, sans-serif; line-height:1.6;">
     <h2>Welcome to Resume 👋</h2>
     <p>Please verify your email by clicking the button below:</p>
@@ -65,30 +60,32 @@ If you didn't create this account, you can safely ignore this email.
     </p>
     <p>If you didn’t request this, you can ignore this email.</p>
   </body>
-</html>
-"""
+</html>"""
 
-    msg.attach(MIMEText(text_body, "plain"))
-    msg.attach(MIMEText(html_body, "html"))
+    if not MAILGUN_DOMAIN or not MAILGUN_API_KEY:
+        logger.error("❌ Mailgun configuration missing; set MAILGUN_DOMAIN and MAILGUN_API_KEY")
+        return
 
-    context = ssl.create_default_context()
+    url = f"{MAILGUN_BASE_URL}/{MAILGUN_DOMAIN}/messages"
+    auth = ("api", MAILGUN_API_KEY)
+    data = {
+        "from": from_email,
+        "to": user_email,
+        "subject": subject,
+        "text": text_body,
+        "html": html_body,
+    }
 
     try:
-        # Explicitly pass hostname and port
-        await aiosmtplib.send(
-            msg,
-            hostname=SMTP_HOST,  # MUST provide this
-            port=SMTP_PORT,      # MUST provide this
-            start_tls=True,
-            username=SMTP_USER,
-            password=SMTP_PASS,
-            timeout=15
-        )
-        logger.info(f"✅ Verification email sent to {user_email}")
-    except aiosmtplib.SMTPException as e:
-        logger.error(f"❌ SMTP error for {user_email}: {e}")
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(url, data=data, auth=auth)
+            resp.raise_for_status()
+            logger.info(f"✅ Verification email sent to {user_email} via Mailgun")
+    except httpx.HTTPStatusError as e:
+        resp = e.response
+        logger.error(f"❌ Mailgun API error for {user_email}: {resp.status_code} - {resp.text}")
     except Exception as e:
-        logger.error(f"❌ Unexpected error for {user_email}: {e}")
+        logger.error(f"❌ Unexpected error sending verification email to {user_email}: {e}")
 
 # =====================
 # Load environment variables

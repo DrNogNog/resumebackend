@@ -31,3 +31,4 @@ pillow
 pytesseract
 docx2txt
 pdfplumber
+requests

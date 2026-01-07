@@ -16,10 +16,11 @@ class Settings(BaseSettings):
     PRO_PLUS_PRICE_ID: str
     FRONTEND_URL: str
 
-    SMTP_HOST: str
-    SMTP_PORT: int
+    MAILGUN_DOMAIN = str
+    MAILGUN_API_KEY = str
+    MAILGUN_BASE_URL = str   
     SMTP_USER: str
-    SMTP_PASS: str
+    
 
     STRIPE_WEBHOOK_SECRET: str
     TEX_BIN: str
