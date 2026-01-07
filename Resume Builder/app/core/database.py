@@ -5,7 +5,7 @@ import os
 
 ASYNC_DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+asyncpg://postgres:1234@localhost:5432/resume_builder"
+    "postgresql+asyncpg://postgres:1234@db:5432/resume_builder"
 )
 
 SYNC_DATABASE_URL = ASYNC_DATABASE_URL.replace("asyncpg", "psycopg2")  # or pg8000 if installed sync

@@ -60,7 +60,7 @@ async def signup(
         )
         
 
-        verification_url = f"http://localhost:3000/verify-email?token={user.verification_token}"
+        verification_url = f"https://api.resumesub.xyz/verify-email?token={user.verification_token}"
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
