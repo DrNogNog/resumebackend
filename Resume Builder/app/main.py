@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse
 import os
 
 # Import routers
@@ -15,11 +15,15 @@ from app.api.routes import (
     suggestions,
 )
 
+# -------------------------
 # Environment
+# -------------------------
 ENV = os.getenv("ENV", "development")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-# Disable docs in production
+# -------------------------
+# FastAPI instance
+# -------------------------
 if ENV == "production":
     app = FastAPI(
         title="Resume Builder API",
@@ -30,13 +34,15 @@ if ENV == "production":
 else:
     app = FastAPI(title="Resume Builder API")
 
-# CORS
+# -------------------------
+# CORS configuration
+# -------------------------
 base_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://resumesub.xyz",
     "https://www.resumesub.xyz",
-    "https://resumefrontend-65glk9ccl-gordonng26-gmailcoms-projects.vercel.app"
+    "https://resumefrontend-65glk9ccl-gordonng26-gmailcoms-projects.vercel.app",
 ]
 
 app.add_middleware(
@@ -48,41 +54,41 @@ app.add_middleware(
 )
 
 # -------------------------
-# Middleware: API Protection with Public Auth Bypass
+# Middleware: API key protection
 # -------------------------
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
-    # === SKIP API KEY CHECK FOR OPTIONS ===
+    # Skip API key / origin check for OPTIONS preflight
     if request.method == "OPTIONS":
-        return await call_next(request)  # Let CORSMiddleware handle it
+        return await call_next(request)
 
     if request.url.path.startswith("/api"):
         # Public auth endpoints - no key required
         if request.url.path.startswith("/api/auth/"):
-            response = await call_next(request)
-            return response
+            return await call_next(request)
 
-        # Protected endpoints - require key
+        # Protected endpoints - require API key
         key = request.headers.get("x-api-key")
         if key != SECRET_KEY:
             return JSONResponse(
                 status_code=403,
-                content={"detail": "Forbidden: Invalid API Key"}
+                content={"detail": "Forbidden: Invalid API Key"},
             )
 
-        # Origin check for protected
+        # Optional: origin check for protected endpoints
         origin = request.headers.get("origin")
         if origin:
-            if origin not in base_origins and "vercel.app" not in origin and not (origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1")):
+            if origin not in base_origins and "vercel.app" not in origin and not (
+                origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1")
+            ):
                 if ENV == "production":
                     return JSONResponse(
                         status_code=403,
-                        content={"detail": "Forbidden: Invalid Origin"}
+                        content={"detail": "Forbidden: Invalid Origin"},
                     )
 
     response = await call_next(request)
     return response
-
 
 # -------------------------
 # Routers
