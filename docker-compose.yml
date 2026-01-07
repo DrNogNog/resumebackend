@@ -19,6 +19,8 @@ services:
       context: ./Resume Builder
       dockerfile: Dockerfile
     container_name: resumebackend-api-1
+    volumes:
+      - ./Resume Builder:/app
     env_file:
       - ./Resume Builder/.env
     environment:
