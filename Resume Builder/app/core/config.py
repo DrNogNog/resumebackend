@@ -16,9 +16,9 @@ class Settings(BaseSettings):
     PRO_PLUS_PRICE_ID: str
     FRONTEND_URL: str
 
-    MAILGUN_DOMAIN = str
-    MAILGUN_API_KEY = str
-    MAILGUN_BASE_URL = str   
+    MAILGUN_DOMAIN: str
+    MAILGUN_API_KEY: str
+    MAILGUN_BASE_URL: str   
     SMTP_USER: str
     
 
