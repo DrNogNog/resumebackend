@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 import os
 
 # Import routers
@@ -51,14 +51,24 @@ app.add_middleware(
 # -------------------------
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
+    # === ALLOW OPTIONS PREFLIGHT IMMEDIATELY (CORS) ===
+    if request.method == "OPTIONS":
+        # Fast response with CORS headers
+        response = Response(status_code=204)
+        response.headers["Access-Control-Allow-Origin"] = request.headers.get("origin", "*")
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-API-Key"
+        response.headers["Vary"] = "Origin"
+        return response
+
     if request.url.path.startswith("/api"):
-        # === PUBLIC AUTH ENDPOINTS - NO KEY REQUIRED ===
-        # Allow signup, login, verify, password reset, etc.
+        # Public auth endpoints - no key required
         if request.url.path.startswith("/api/auth/"):
             response = await call_next(request)
             return response
 
-        # === PROTECTED ENDPOINTS - REQUIRE API KEY ===
+        # Protected endpoints - require key
         key = request.headers.get("x-api-key")
         if key != SECRET_KEY:
             return JSONResponse(
@@ -66,23 +76,16 @@ async def lock_api(request: Request, call_next):
                 content={"detail": "Forbidden: Invalid API Key"}
             )
 
-        # === ORIGIN CHECK (for protected endpoints) ===
+        # Origin check for protected
         origin = request.headers.get("origin")
         if origin:
-            if origin in base_origins:
-                pass
-            elif "vercel.app" in origin:
-                pass
-            elif origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1"):
-                pass
-            elif ENV == "production":
-                return JSONResponse(
-                    status_code=403,
-                    content={"detail": "Forbidden: Invalid Origin"}
-                )
-            # In dev: allow unknown origins
+            if origin not in base_origins and "vercel.app" not in origin and not (origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1")):
+                if ENV == "production":
+                    return JSONResponse(
+                        status_code=403,
+                        content={"detail": "Forbidden: Invalid Origin"}
+                    )
 
-    # Proceed for non-/api routes or allowed cases
     response = await call_next(request)
     return response
 
