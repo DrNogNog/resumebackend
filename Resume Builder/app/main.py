@@ -52,16 +52,9 @@ app.add_middleware(
 # -------------------------
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
-    # === ALLOW OPTIONS PREFLIGHT IMMEDIATELY (CORS) ===
+    # === SKIP API KEY CHECK FOR OPTIONS ===
     if request.method == "OPTIONS":
-        # Fast response with CORS headers
-        response = Response(status_code=204)
-        response.headers["Access-Control-Allow-Origin"] = request.headers.get("origin", "*")
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-API-Key"
-        response.headers["Vary"] = "Origin"
-        return response
+        return await call_next(request)  # Let CORSMiddleware handle it
 
     if request.url.path.startswith("/api"):
         # Public auth endpoints - no key required
@@ -89,6 +82,7 @@ async def lock_api(request: Request, call_next):
 
     response = await call_next(request)
     return response
+
 
 # -------------------------
 # Routers
