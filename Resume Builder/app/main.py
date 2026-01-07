@@ -36,6 +36,7 @@ base_origins = [
     "http://127.0.0.1:3000",
     "https://resumesub.xyz",
     "https://www.resumesub.xyz",
+    "https://resumefrontend-65glk9ccl-gordonng26-gmailcoms-projects.vercel.app"
 ]
 
 app.add_middleware(
