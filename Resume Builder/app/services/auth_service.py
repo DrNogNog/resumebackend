@@ -36,7 +36,8 @@ async def send_verification_email_async(user_email: str, token: str):
     verification_url = f"{FRONTEND_URL}/verify-email?token={token}"
 
     subject = "Verify your Resume account"
-    from_email = f"Resume <{SMTP_USER or f'no-reply@{MAILGUN_DOMAIN}'}>"
+    # Use the postmaster account explicitly for Mailgun
+    from_email = f"Resume <postmaster@{MAILGUN_DOMAIN}>"
 
     text_body = f"""Welcome to Resume!
 
@@ -66,7 +67,8 @@ If you didn't create this account, you can safely ignore this email.
         logger.error("❌ Mailgun configuration missing; set MAILGUN_DOMAIN and MAILGUN_API_KEY")
         return
 
-    url = f"{MAILGUN_BASE_URL}/{MAILGUN_DOMAIN}/messages"
+    # Correct URL for Mailgun API
+    url = f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages"
     auth = ("api", MAILGUN_API_KEY)
     data = {
         "from": from_email,
