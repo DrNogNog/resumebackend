@@ -25,7 +25,7 @@ services:
     environment:
       ENV: production
       TEX_BIN: xelatex
-      DATABASE_URL: postgresql+asyncpg://postgres:1234@resume-postgres:5432/resume_builder"
+      DATABASE_URL: postgresql+asyncpg://postgres:1234@resume-postgres:5432/resume_builder
     expose:
       - "8000"
     depends_on:
