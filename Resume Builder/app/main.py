@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware.
+from fastapi.responses import JSONResponse
 import os
 
 # Import routers
@@ -29,9 +30,7 @@ if ENV == "production":
 else:
     app = FastAPI(title="Resume Builder API")
 
-# -------------------------
-# CORS configuration - expanded and flexible
-# -------------------------
+# CORS (unchanged)
 base_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -48,45 +47,49 @@ app.add_middleware(
 )
 
 # -------------------------
-# Middleware: Lock /api (API key + smart origin protection)
+# Fixed Middleware: Return JSONResponse instead of raising
 # -------------------------
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
     if request.url.path.startswith("/api"):
-        # API key check - keep this for security
+        # API key check
         key = request.headers.get("x-api-key")
         if key != SECRET_KEY:
-            raise HTTPException(status_code=403, detail="Forbidden: Invalid API Key")
+            return JSONResponse(
+                status_code=403,
+                content={"detail": "Forbidden: Invalid API Key"}
+            )
 
-        # Origin check - fixed indentation and logic
+        # Origin check
         origin = request.headers.get("origin")
         if origin:
             # Allow exact production domains
             if origin in base_origins:
-                return await call_next(request)
-
-            # Allow ANY Vercel origin (preview or production)
-            if "vercel.app" in origin:
-                return await call_next(request)
-
+                pass
+            # Allow any Vercel preview/deploy
+            elif "vercel.app" in origin:
+                pass
             # Allow localhost variants
-            if origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1"):
-                return await call_next(request)
+            elif origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1"):
+                pass
+            # Block everything else in production
+            elif ENV == "production":
+                return JSONResponse(
+                    status_code=403,
+                    content={"detail": "Forbidden: Invalid Origin"}
+                )
+            else:
+                # In development: allow unknown origins (optional – remove if you want strict)
+                pass
+        # If no origin header (e.g., curl, Postman), allow if key is valid
+        # (you can block these too if desired)
 
-            # In production, block anything else
-            if ENV == "production":
-                raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
-            # In development, optionally allow all (for testing)
-            # remove the line below if you want strict in dev too
-            # return await call_next(request)
-
-            raise HTTPException(status_code=403, detail="Forbidden: Invalid Origin")
-
-    # Proceed if not /api path
-    return await call_next(request)
+    # Proceed to route handler
+    response = await call_next(request)
+    return response
 
 # -------------------------
-# Routers
+# Routers (unchanged)
 # -------------------------
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(resume_routes.router, prefix="/api/resume", tags=["Resume"])
