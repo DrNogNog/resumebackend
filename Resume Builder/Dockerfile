@@ -20,13 +20,13 @@ RUN pip install --upgrade pip wheel && \
 # =========================
 FROM python:3.11-slim
 
-# --- OS + postgres client (pg_isready) ---
+# --- OS + postgres client ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
     libffi-dev libssl-dev wget ca-certificates fontconfig fonts-dejavu-core perl \
     && rm -rf /var/lib/apt/lists/*
 
-# --- hard fail if pg_isready missing ---
+# --- Ensure pg_isready exists ---
 RUN which pg_isready && pg_isready --version
 
 # --- Install TinyTeX ---
@@ -40,18 +40,20 @@ RUN tlmgr update --self && tlmgr install \
     xetex collection-xetex collection-latexrecommended \
     collection-latexextra collection-fontsrecommended fontspec latexmk
 
+# --- App workspace ---
 WORKDIR /app
 
 # --- Install Python wheels ---
 COPY --from=builder /build/*.whl /wheels/
 RUN pip install --no-index --find-links=/wheels /wheels/*.whl
 
-# --- Copy app ---
+# --- Copy full project (FIXES alembic.ini missing) ---
+COPY alembic ./alembic
+COPY alembic.ini ./alembic.ini
 COPY app ./app
+COPY start.sh ./start.sh
 
-# --- Start script ---
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+RUN chmod +x ./start.sh
 
 EXPOSE 8000
-CMD ["/app/start.sh"]
+CMD ["./start.sh"]

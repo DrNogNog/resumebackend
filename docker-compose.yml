@@ -19,23 +19,19 @@ services:
     build:
       context: ./Resume Builder
       dockerfile: Dockerfile
+    container_name: resumebackend-api-1
     env_file:
-      - .env
+      - ./Resume Builder/.env
     environment:
-      - ENV=production
-      - TEX_BIN=xelatex
-      - DATABASE_URL=postgresql+asyncpg://postgres:1234@db:5432/resumes
-    volumes:
-      - uploads:/app/build
-      - ./Resume Builder/start.sh:/app/start.sh
+      ENV: production
+      TEX_BIN: xelatex
+      DATABASE_URL: postgresql+asyncpg://postgres:1234@db:5432/resumes
     expose:
       - "8000"
     depends_on:
       - db
     networks:
       - backend
-    command: ["sh", "/app/start.sh"]
-
 
   db:
     image: postgres:15
