@@ -2,10 +2,9 @@ import subprocess
 import os
 from pathlib import Path
 import uuid
-import re
+import tempfile
 from jinja2 import Environment, BaseLoader
 from typing import Dict
-import tempfile
 
 # ----------------- CONFIGURATION -----------------
 TEMPLATE_PATH = Path("app/templates")
@@ -21,42 +20,30 @@ env = Environment(
     comment_end_string='#))',
 )
 
-# ----------------- SANITIZER -----------------
+# ----------------- JINJA2 FILTER -----------------
 
-LATEX_BLOCKLIST = re.compile(r"\\(begin|end|item|input|include|write|openout|read)\b", re.I)
-
-def sanitize_latex(text: str) -> str:
+def latex_escape(text: str) -> str:
+    """
+    Escapes only user-provided text for LaTeX.
+    Template LaTeX commands are left intact.
+    """
     if not text:
         return ""
-
-    text = LATEX_BLOCKLIST.sub("", text)
-
-    # REMOVE grouping chars completely
-    text = text.replace("{", "").replace("}", "")
-
-    # Escape everything else dangerous
-    text = (
+    return (
         text.replace("&", r"\&")
             .replace("%", r"\%")
             .replace("$", r"\$")
             .replace("#", r"\#")
             .replace("_", r"\_")
+            .replace("{", r"\{")
+            .replace("}", r"\}")
             .replace("~", r"\textasciitilde{}")
             .replace("^", r"\textasciicircum{}")
             .replace("\\", r"\textbackslash{}")
     )
 
-    return text.replace("\n", r"\\ ").strip()
-
-
-def sanitize_payload(obj):
-    if isinstance(obj, dict):
-        return {k: sanitize_payload(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [sanitize_payload(v) for v in obj]
-    if isinstance(obj, str):
-        return sanitize_latex(obj)
-    return obj
+# Register filter in Jinja2
+env.filters['latex_escape'] = latex_escape
 
 # ----------------- HELPERS -----------------
 
@@ -66,24 +53,34 @@ def load_template(template_name: str) -> str:
         raise ValueError(f"Template '{template_name}' not found")
     return file.read_text(encoding="utf-8")
 
+def sanitize_payload(obj):
+    """
+    Recursively sanitize user payload, keeping template commands intact.
+    """
+    if isinstance(obj, dict):
+        return {k: sanitize_payload(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [sanitize_payload(v) for v in obj]
+    if isinstance(obj, str):
+        return latex_escape(obj)
+    return obj
+
 # ----------------- MAIN FUNCTION -----------------
 
 def generate_pdf_from_latex(template_name: str, resume_data: Dict) -> bytes:
+    """
+    Renders a LaTeX template with sanitized user data and generates a PDF.
+    """
     latex_raw = load_template(template_name)
-
     safe_data = sanitize_payload(resume_data)
 
     template = env.from_string(latex_raw)
     latex_filled = template.render(**safe_data)
 
-    # Hard fail if any environment slipped through
-    if r"\begin{itemize}" in latex_filled or r"\end{itemize}" in latex_filled:
-        raise RuntimeError("User payload attempted to inject LaTeX environments.")
-
     job_id = uuid.uuid4().hex
 
     from app.core.config import settings
-    tex_bin = settings.TEX_BIN if getattr(settings, 'TEX_BIN', None) else os.getenv('TEX_BIN', 'xelatex')
+    tex_bin = getattr(settings, 'TEX_BIN', os.getenv('TEX_BIN', 'xelatex'))
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
