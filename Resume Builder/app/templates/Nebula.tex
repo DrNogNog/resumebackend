@@ -46,20 +46,20 @@
 \begin{tcolorbox}[headerstyle]
 \begin{minipage}[t]{0.58\textwidth}
   \color{white}
-  \fontsize{26}{30}\selectfont\bfseries {{ name }}\par
+  \fontsize{26}{30}\selectfont\bfseries {{ name | e_latex }}\par
   \vspace{5pt}
-  \fontsize{14}{17}\selectfont {{ title }}
+  \fontsize{14}{17}\selectfont {{ title | e_latex }}
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.40\textwidth}
   \raggedleft\color{white}\fontsize{9.5}{11.8}\selectfont
-  {{ header_summary }}\par
+  {{ header_summary | e_latex }}\par
   \vspace{6pt}
-  {{ email }}\par
+  {{ email | e_latex }}\par
   \vspace{4pt}
-  \colorbox{phoneblue}{\color{white}\bfseries\enspace{{ phone }}\enspace}\par
+  \colorbox{phoneblue}{\color{white}\bfseries\enspace{{ phone | e_latex }}\enspace}\par
   \vspace{4pt}
-  {{ location }}
+  {{ location | e_latex }}
 \end{minipage}%
 \end{tcolorbox}
 
@@ -73,9 +73,9 @@
 \vspace{4pt}
 \normalsize\color{black}
 {% for edu in education %}
-\textbf{{ edu.school }}\par
-\textit{{ edu.location }} \hfill {{ edu.dates }}\par
-{{ edu.degree }}\par
+\textbf{{ edu.school | e_latex }}\par
+\textit{{ edu.location | e_latex }} \hfill {{ edu.dates | e_latex }}\par
+{{ edu.degree | e_latex }}\par
 \vspace{12pt}
 {% endfor %}
 
@@ -84,7 +84,7 @@
 \normalsize\color{black}
 \begin{itemize}
 {% for skill in skills %}
-\item {{ skill }}
+\item {{ skill | e_latex }}
 {% endfor %}
 \end{itemize}
 
@@ -95,10 +95,10 @@
 \vspace{4pt}
 \normalsize\color{black}
 {% for job in experience %}
-\textbf{{ job.role }} -- {{ job.company }}\par
-\textit{{ job.location }} \hfill {{ job.dates }}\par
+\textbf{{ job.role | e_latex }} -- {{ job.company | e_latex }}\par
+\textit{{ job.location | e_latex }} \hfill {{ job.dates | e_latex }}\par
 {% for bullet in job.bullets %}
-\noindent{{ bullet }}\par
+\noindent{{ bullet | e_latex }}\par
 {% endfor %}
 \vspace{12pt}
 {% endfor %}
