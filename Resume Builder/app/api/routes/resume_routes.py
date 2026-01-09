@@ -11,6 +11,7 @@ from sqlalchemy.future import select
 from app.services.auth_service import get_current_user
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime
 router = APIRouter()
 
 @router.get("/health", tags=["Health"])
@@ -21,25 +22,20 @@ async def health_check():
         "message": "Service is running normally"
     }
 
-# Pydantic schema for output
 class ResumeOut(BaseModel):
     id: int
     name: str
     template: str
-    created_at: str
+    file_path: str | None = None
+    created_at: datetime
 
-    model_config = {
-        "from_attributes": True  # replaces orm_mode in Pydantic v2
-    }
+    class Config:
+        orm_mode = True
 
-@router.get("/{user_id}/resumes")
+@router.get("/{user_id}/resumes", response_model=List[ResumeOut])
 async def get_user_resumes(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    # Build the query
     result = await db.execute(select(Resume).where(Resume.user_id == user.id))
-    
-    # Extract all Resume objects
     resumes = result.scalars().all()
-    
     return resumes
 
 
