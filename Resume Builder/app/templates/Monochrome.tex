@@ -29,10 +29,10 @@
 
 \begin{multicols}{2}
 
-% LEFT COLUMN BOX
-\colorbox{graybg}{%
+% ------------------- LEFT COLUMN -------------------
 {% raw %}
-\parbox{\dimexpr\columnwidth-2\fboxsep\relax}{%
+\colorbox{graybg}{%
+  \parbox{\dimexpr\columnwidth-2\fboxsep\relax}{%
 {% endraw %}
 
 \section*{Details}
@@ -57,10 +57,9 @@
 \end{itemize}
 
 {% raw %}
-} % end parbox
+  } % end parbox
 } % end colorbox
 {% endraw %}
-
 
 % ------------------- RIGHT COLUMN -------------------
 \columnbreak
@@ -88,6 +87,20 @@
 \textbf{ {{ edu.degree }} }, {{ edu.school }} \hfill {{ edu.location }}\\
 {{ edu.dates }}\\[2pt]
 {% endfor %}
+
+\section*{Projects}
+\noindent\rule{\linewidth}{0.4pt}
+{% if projects %}
+{% for proj in projects %}
+\textbf{ {{ proj.name }} } [{{ proj.technologies | join(', ') }}]\\
+\begin{itemize}
+{% for bullet in proj.descriptions %}
+  \item {{ bullet }}
+{% endfor %}
+\end{itemize}
+\vspace{6pt}
+{% endfor %}
+{% endif %}
 
 \end{multicols}
 
