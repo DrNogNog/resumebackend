@@ -66,7 +66,7 @@ async def generate_resume(
     data: MITResumeInput,
     db: AsyncSession = Depends(get_db)
 ):
-    pdf_bytes = generate_pdf_from_latex('MIT', data.dict())
+    pdf_bytes = generate_pdf_from_latex('Mit', data.dict())
     resume = Resume(
         name=data.name,
         template='Mit',
