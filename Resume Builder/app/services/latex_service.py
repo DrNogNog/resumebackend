@@ -3,13 +3,13 @@ import os
 from pathlib import Path
 import uuid
 import re
-from jinja2 import Environment, FileSystemLoader, BaseLoader
+from jinja2 import Environment, BaseLoader
 from typing import Dict
+import tempfile
 
 # ----------------- CONFIGURATION -----------------
 TEMPLATE_PATH = Path("app/templates")
 
-# Global Jinja2 environment (MUST be defined here)
 env = Environment(
     loader=BaseLoader(),
     autoescape=False,
@@ -21,30 +21,45 @@ env = Environment(
     comment_end_string='#))',
 )
 
+# ----------------- SANITIZER -----------------
 
-# Custom LaTeX escape filter
-def latex_escape(value):
-    if not value:
+LATEX_BLOCKLIST = re.compile(r"\\(begin|end|item|input|include|write|openout|read)\b", re.I)
+
+def sanitize_latex(text: str) -> str:
+    if not text:
         return ""
-    replacements = {
-        '&': r'\&',
-        '%': r'\%',
-        '$': r'\$',
-        '#': r'\#',
-        '_': r'\_',
-        '{': r'\{',
-        '}': r'\}',
-        '~': r'\textasciitilde{}',
-        '^': r'\^{}',
-        '\\': r'\textbackslash{}',
-    }
-    for k, v in replacements.items():
-        value = value.replace(k, v)
-    return value
-# Register the filter
-env.filters["latex_escape"] = latex_escape
 
-# ----------------- HELPER FUNCTIONS -----------------
+    text = LATEX_BLOCKLIST.sub("", text)
+
+    # REMOVE grouping chars completely
+    text = text.replace("{", "").replace("}", "")
+
+    # Escape everything else dangerous
+    text = (
+        text.replace("&", r"\&")
+            .replace("%", r"\%")
+            .replace("$", r"\$")
+            .replace("#", r"\#")
+            .replace("_", r"\_")
+            .replace("~", r"\textasciitilde{}")
+            .replace("^", r"\textasciicircum{}")
+            .replace("\\", r"\textbackslash{}")
+    )
+
+    return text.replace("\n", r"\\ ").strip()
+
+
+def sanitize_payload(obj):
+    if isinstance(obj, dict):
+        return {k: sanitize_payload(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [sanitize_payload(v) for v in obj]
+    if isinstance(obj, str):
+        return sanitize_latex(obj)
+    return obj
+
+# ----------------- HELPERS -----------------
+
 def load_template(template_name: str) -> str:
     file = TEMPLATE_PATH / f"{template_name}.tex"
     if not file.exists():
@@ -52,23 +67,21 @@ def load_template(template_name: str) -> str:
     return file.read_text(encoding="utf-8")
 
 # ----------------- MAIN FUNCTION -----------------
-import tempfile
 
 def generate_pdf_from_latex(template_name: str, resume_data: Dict) -> bytes:
-    """Render LaTeX template, compile it in a temporary directory, and return PDF bytes.
-
-    This avoids writing files to a persistent build folder and is safe for storing
-    output directly in a database backend.
-    """
     latex_raw = load_template(template_name)
 
-    # Use the GLOBAL env
+    safe_data = sanitize_payload(resume_data)
+
     template = env.from_string(latex_raw)
-    latex_filled = template.render(**resume_data)
+    latex_filled = template.render(**safe_data)
+
+    # Hard fail if any environment slipped through
+    if r"\begin{itemize}" in latex_filled or r"\end{itemize}" in latex_filled:
+        raise RuntimeError("User payload attempted to inject LaTeX environments.")
 
     job_id = uuid.uuid4().hex
 
-    # Compile with configurable tex binary (e.g., xelatex or TinyTeX)
     from app.core.config import settings
     tex_bin = settings.TEX_BIN if getattr(settings, 'TEX_BIN', None) else os.getenv('TEX_BIN', 'xelatex')
 
@@ -81,21 +94,20 @@ def generate_pdf_from_latex(template_name: str, resume_data: Dict) -> bytes:
 
         try:
             result = subprocess.run(
-                [tex_bin, "-no-shell-escape", "-interaction=nonstopmode", "-output-directory", str(tmpdir_path), str(tex_path)],
+                [tex_bin, "-no-shell-escape", "-interaction=nonstopmode",
+                 "-output-directory", str(tmpdir_path), str(tex_path)],
                 capture_output=True,
                 text=True,
                 timeout=30,
             )
         except subprocess.TimeoutExpired as e:
-            # subprocess will already handle killing the child process; raise a clearer error
             raise RuntimeError(f"LaTeX compilation timed out for template '{template_name}'.") from e
 
         if result.returncode != 0 or not pdf_path.exists():
-            debug_out = f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
-            print("---- LaTeX Compilation Output ----")
-            print(debug_out)
-            raise RuntimeError(f"PDF generation failed for template '{template_name}'. LaTeX error: {result.stderr}")
+            print("---- LaTeX STDOUT ----")
+            print(result.stdout)
+            print("---- LaTeX STDERR ----")
+            print(result.stderr)
+            raise RuntimeError(f"PDF generation failed for template '{template_name}'.")
 
-        pdf_bytes = pdf_path.read_bytes()
-
-    return pdf_bytes
+        return pdf_path.read_bytes()
