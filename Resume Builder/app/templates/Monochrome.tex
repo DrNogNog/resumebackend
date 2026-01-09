@@ -29,10 +29,11 @@
 
 \begin{multicols}{2}
 
-% ------------------- LEFT COLUMN -------------------
-\noindent
+% LEFT COLUMN BOX
 \colorbox{graybg}{%
+{% raw %}
 \parbox{\dimexpr\columnwidth-2\fboxsep\relax}{%
+{% endraw %}
 
 \section*{Details}
 \noindent\rule{\linewidth}{0.4pt}
@@ -55,7 +56,11 @@
 {% endfor %}
 \end{itemize}
 
-}} % end parbox and colorbox
+{% raw %}
+} % end parbox
+} % end colorbox
+{% endraw %}
+
 
 % ------------------- RIGHT COLUMN -------------------
 \columnbreak
