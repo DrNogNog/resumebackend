@@ -17,65 +17,61 @@
 
 % ====================== HEADER ======================
 \begin{center}
-\textbf{\LARGE {{ name }}}\\
-{{ title }}\\[4pt]
-{{ phone }} \textbar{} 
-\href{mailto:{{ email }}}{\texttt{ {{ email }} }} \textbar{} 
-\href{ {{ linkedin }}}{\texttt{ {{ linkedin_short }} }} \textbar{} 
-\href{ {{ github }}}{\texttt{ {{ github_short }} }}
+\textbf{\LARGE {{ name|latex_escape }}}\\
+{{ title|latex_escape }}\\[4pt]
+{{ phone|latex_escape }} \textbar{} 
+\href{mailto:{{ email|latex_escape }}}{\texttt{ {{ email|latex_escape }} }} \textbar{} 
+\href{ {{ linkedin|latex_escape }}}{\texttt{ {{ linkedin_short|latex_escape }} }} \textbar{} 
+\href{ {{ github|latex_escape }}}{\texttt{ {{ github_short|latex_escape }} }}
 \end{center}
 
 \vspace{10pt}
 
 \begin{multicols}{2}
 
-% ------------------- LEFT COLUMN -------------------
-{% raw %}
+% LEFT COLUMN BOX
 \colorbox{graybg}{%
   \parbox{\dimexpr\columnwidth-2\fboxsep\relax}{%
-{% endraw %}
 
 \section*{Details}
 \noindent\rule{\linewidth}{0.4pt}
 
 \textbf{Address:}\\
-{{ address.street }}, {{ address.city }}, {{ address.state }} {{ address.zip }}, {{ address.country }}\\[2pt]
+{{ address.street|latex_escape }}, {{ address.city|latex_escape }}, {{ address.state|latex_escape }} {{ address.zip|latex_escape }}, {{ address.country|latex_escape }}\\[2pt]
 
 \textbf{Phone:}\\
-{{ phone }}\\[2pt]
+{{ phone|latex_escape }}\\[2pt]
 
 \textbf{Email:}\\
-{{ email }}\\[2pt]
+{{ email|latex_escape }}\\[2pt]
 
 \section*{Skills}
 \noindent\rule{\linewidth}{0.4pt}
 
 \begin{itemize}
 {% for skill in skills %}
-  \item {{ skill }}
+  \item {{ skill|latex_escape }}
 {% endfor %}
 \end{itemize}
 
-{% raw %}
   } % end parbox
 } % end colorbox
-{% endraw %}
 
 % ------------------- RIGHT COLUMN -------------------
 \columnbreak
 
 \section*{Summary}
 \noindent\rule{\linewidth}{0.4pt}
-{{ summary }}\\[2pt]
+{{ summary|latex_escape }}\\[2pt]
 
 \section*{Experience}
 \noindent\rule{\linewidth}{0.4pt}
 {% for job in experience %}
-\textbf{ {{ job.role }} }, {{ job.company }} \hfill {{ job.location }}\\
-{{ job.dates }}\\
+\textbf{ {{ job.role|latex_escape }} }, {{ job.company|latex_escape }} \hfill {{ job.location|latex_escape }}\\
+{{ job.dates|latex_escape }}\\
 \begin{itemize}
 {% for bullet in job.bullets %}
-  \item {{ bullet }}
+  \item {{ bullet|latex_escape }}
 {% endfor %}
 \end{itemize}
 \vspace{8pt}
@@ -84,23 +80,9 @@
 \section*{Education}
 \noindent\rule{\linewidth}{0.4pt}
 {% for edu in education %}
-\textbf{ {{ edu.degree }} }, {{ edu.school }} \hfill {{ edu.location }}\\
-{{ edu.dates }}\\[2pt]
+\textbf{ {{ edu.degree|latex_escape }} }, {{ edu.school|latex_escape }} \hfill {{ edu.location|latex_escape }}\\
+{{ edu.dates|latex_escape }}\\[2pt]
 {% endfor %}
-
-\section*{Projects}
-\noindent\rule{\linewidth}{0.4pt}
-{% if projects %}
-{% for proj in projects %}
-\textbf{ {{ proj.name }} } [{{ proj.technologies | join(', ') }}]\\
-\begin{itemize}
-{% for bullet in proj.descriptions %}
-  \item {{ bullet }}
-{% endfor %}
-\end{itemize}
-\vspace{6pt}
-{% endfor %}
-{% endif %}
 
 \end{multicols}
 
