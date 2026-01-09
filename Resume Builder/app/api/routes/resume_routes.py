@@ -69,7 +69,7 @@ async def generate_resume(
     pdf_bytes = generate_pdf_from_latex('MIT', data.dict())
     resume = Resume(
         name=data.name,
-        template='MIT',
+        template='Mit',
         payload=data.dict()
     )
 
