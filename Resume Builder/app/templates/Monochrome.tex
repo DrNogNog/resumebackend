@@ -5,8 +5,9 @@
 \usepackage{xcolor}
 \usepackage{multicol}
 \usepackage{enumitem}
-\setlist[itemize]{leftmargin=*, nosep, topsep=2pt, itemsep=2pt}
 \usepackage{parskip}
+\usepackage{hyperref} % <-- Added for \href
+\setlist[itemize]{leftmargin=*, nosep, topsep=2pt, itemsep=2pt}
 \setlength{\parskip}{4pt}
 \pagestyle{empty}
 
@@ -18,11 +19,11 @@
 % ====================== HEADER ======================
 \begin{center}
 \textbf{\LARGE {{ name|latex_escape }}}\\
-{{ title|latex_escape }}\\[4pt]
-{{ phone|latex_escape }} \textbar{} 
-\href{mailto:{{ email|latex_escape }}}{\texttt{ {{ email|latex_escape }} }} \textbar{} 
-\href{ {{ linkedin|latex_escape }}}{\texttt{ {{ linkedin_short|latex_escape }} }} \textbar{} 
-\href{ {{ github|latex_escape }}}{\texttt{ {{ github_short|latex_escape }} }}
+{% if title %}{{ title|latex_escape }}\\[4pt]{% endif %}
+{% if phone %}{{ phone|latex_escape }} \textbar{} {% endif %}
+{% if email %}\href{mailto:{{ email|latex_escape }}}{\texttt{ {{ email|latex_escape }} }} \textbar{}{% endif %}
+{% if linkedin %}\href{ {{ linkedin|latex_escape }}}{\texttt{ {{ linkedin_short|latex_escape }} }} \textbar{}{% endif %}
+{% if github %}\href{ {{ github|latex_escape }}}{\texttt{ {{ github_short|latex_escape }} }}{% endif %}
 \end{center}
 
 \vspace{10pt}
@@ -35,26 +36,29 @@
   \parbox{\dimexpr\columnwidth-2\fboxsep\relax}{%
 {% endraw %}
 
+{% if address %}
 \section*{Details}
 \noindent\rule{\linewidth}{0.4pt}
 
-\textbf{Address:}\\
-{{ address.street|latex_escape }}, {{ address.city|latex_escape }}, {{ address.state|latex_escape }} {{ address.zip|latex_escape }}, {{ address.country|latex_escape }}\\[2pt]
+{% if address.street %}\textbf{Address:}\\
+{{ address.street|latex_escape }}, {{ address.city|latex_escape }}, {{ address.state|latex_escape }} {{ address.zip|latex_escape }}, {{ address.country|latex_escape }}\\[2pt]{% endif %}
 
-\textbf{Phone:}\\
-{{ phone|latex_escape }}\\[2pt]
+{% if phone %}\textbf{Phone:}\\
+{{ phone|latex_escape }}\\[2pt]{% endif %}
 
-\textbf{Email:}\\
-{{ email|latex_escape }}\\[2pt]
+{% if email %}\textbf{Email:}\\
+{{ email|latex_escape }}\\[2pt]{% endif %}
+{% endif %}
 
+{% if skills %}
 \section*{Skills}
 \noindent\rule{\linewidth}{0.4pt}
-
 \begin{itemize}
 {% for skill in skills %}
   \item {{ skill|latex_escape }}
 {% endfor %}
 \end{itemize}
+{% endif %}
 
 {% raw %}
   } % end parbox
@@ -64,29 +68,37 @@
 % ------------------- RIGHT COLUMN -------------------
 \columnbreak
 
+{% if summary %}
 \section*{Summary}
 \noindent\rule{\linewidth}{0.4pt}
 {{ summary|latex_escape }}\\[2pt]
+{% endif %}
 
+{% if experience %}
 \section*{Experience}
 \noindent\rule{\linewidth}{0.4pt}
 {% for job in experience %}
-\textbf{ {{ job.role|latex_escape }} }, {{ job.company|latex_escape }} \hfill {{ job.location|latex_escape }}\\
+\textbf{ {{ job.role|latex_escape }} }, {{ job.company|latex_escape }} {% if job.location %}\hfill {{ job.location|latex_escape }}{% endif %}\\
 {{ job.dates|latex_escape }}\\
+{% if job.bullets %}
 \begin{itemize}
 {% for bullet in job.bullets %}
   \item {{ bullet|latex_escape }}
 {% endfor %}
 \end{itemize}
+{% endif %}
 \vspace{8pt}
 {% endfor %}
+{% endif %}
 
+{% if education %}
 \section*{Education}
 \noindent\rule{\linewidth}{0.4pt}
 {% for edu in education %}
-\textbf{ {{ edu.degree|latex_escape }} }, {{ edu.school|latex_escape }} \hfill {{ edu.location|latex_escape }}\\
+\textbf{ {{ edu.degree|latex_escape }} }, {{ edu.school|latex_escape }} {% if edu.location %}\hfill {{ edu.location|latex_escape }}{% endif %}\\
 {{ edu.dates|latex_escape }}\\[2pt]
 {% endfor %}
+{% endif %}
 
 \end{multicols}
 
