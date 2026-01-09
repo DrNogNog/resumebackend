@@ -20,12 +20,16 @@ RUN pip install --upgrade pip wheel && \
 # =========================
 FROM python:3.11-slim
 
-# --- OS + postgres client ---
+# --- OS + postgres client + Microsoft fonts (Calibri fix) ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
     libffi-dev libssl-dev wget ca-certificates fontconfig fonts-dejavu-core perl \
+    cabextract xfonts-utils \
+    && wget https://downloads.sourceforge.net/project/corefonts/the%20fonts/final/mscorefonts2.deb \
+    && dpkg -i mscorefonts2.deb || apt-get -f install -y \
+    && rm -f mscorefonts2.deb \
+    && fc-cache -f -v \
     && rm -rf /var/lib/apt/lists/*
-
 # --- Ensure pg_isready exists ---
 RUN which pg_isready && pg_isready --version
 
