@@ -48,7 +48,9 @@
 \noindent\rule{\linewidth}{0.4pt}
 
 \textbf{Address:}\par
+{% endraw %}
 {{ address.street }}, {{ address.city }}, {{ address.state }} {{ address.zip }}, {{ address.country }}\par
+{% raw %}
 
 \textbf{Phone:}\par
 {{ phone }}\par
@@ -62,9 +64,11 @@
 \noindent\rule{\linewidth}{0.4pt}
 
 \begin{itemize}
+{% endraw %}
 {% for skill in skills %}
 \item {{ skill }}
 {% endfor %}
+{% raw %}
 \end{itemize}
 
 \vspace{6pt}
@@ -77,34 +81,44 @@
 \section*{Summary}
 \noindent\rule{\linewidth}{0.4pt}
 
+{% endraw %}
 {{ summary }}\par
+{% raw %}
 
 \vspace{15pt}
 
 \section*{Experience}
 \noindent\rule{\linewidth}{0.4pt}
 
+{% endraw %}
 {% for job in experience %}
+{% raw %}
 \textbf{ {{ job.role }} }, {{ job.company }} \hfill {{ job.location }}\par
 {{ job.dates }}\par
 
 \begin{itemize}
+{% endraw %}
 {% for bullet in job.bullets %}
 \item {{ bullet }}
 {% endfor %}
+{% raw %}
 \end{itemize}
 
 \vspace{8pt}
+{% endraw %}
 {% endfor %}
 
 \section*{Education}
 \noindent\rule{\linewidth}{0.4pt}
 
+{% endraw %}
 {% for edu in education %}
+{% raw %}
 \textbf{ {{ edu.degree }} }, {{ edu.school }} \hfill {{ edu.location }}\par
 {{ edu.dates }}\par
 
 \vspace{6pt}
+{% endraw %}
 {% endfor %}
 
 \end{multicols}
