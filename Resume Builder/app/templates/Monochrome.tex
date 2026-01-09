@@ -1,3 +1,4 @@
+{% raw %}
 \documentclass[11pt,a4paper]{article}
 
 %------------------ Packages ------------------
@@ -27,12 +28,12 @@
 \begin{minipage}{0.85\textwidth}
 \centering
 \vspace{10pt}
-
-{\Huge \textbf{ {{ name | latex_escape }} }}\par
-{\Large {{ title | latex_escape }} }\par
+{% endraw %}
+{\Huge \textbf{{ name | latex_escape }}}\par
+{\Large {{ title | latex_escape }}}\par
+{% raw %}
 \vspace{10pt}
-
-\end{minipage}%
+\end{minipage}% 
 }
 \end{center}
 
@@ -51,9 +52,11 @@
 \noindent\rule{\linewidth}{0.4pt}
 
 \textbf{Address:}\par
+{% endraw %}
 {{ address.street | latex_escape }}, {{ address.city | latex_escape }}, 
 {{ address.state | latex_escape }} {{ address.zip | latex_escape }}, 
 {{ address.country | latex_escape }}\par
+{% raw %}
 
 \textbf{Phone:}\par
 {{ phone | latex_escape }}\par
@@ -67,13 +70,15 @@
 \noindent\rule{\linewidth}{0.4pt}
 
 \begin{itemize}
+{% endraw %}
 {% for skill in skills %}
-\item { {{ skill | latex_escape }} }
+\item {{ skill | latex_escape }}
 {% endfor %}
+{% raw %}
 \end{itemize}
 
 \vspace{6pt}
-}% end parbox
+}% 
 } % end colorbox
 
 % ------------------- RIGHT COLUMN -------------------
@@ -82,36 +87,50 @@
 \section*{Summary}
 \noindent\rule{\linewidth}{0.4pt}
 
+{% endraw %}
 {{ summary | latex_escape }}\par
+{% raw %}
 
 \vspace{15pt}
 
 \section*{Experience}
 \noindent\rule{\linewidth}{0.4pt}
 
+{% endraw %}
 {% for job in experience %}
-\textbf{ {{ job.role | latex_escape }} }, {{ job.company | latex_escape }} \hfill {{ job.location | latex_escape }}\par
+{% raw %}
+\textbf{ {% endraw %}{{ job.role | latex_escape }}{% raw %} }, {% endraw %}{{ job.company | latex_escape }}{% raw %} \hfill {% endraw %}{{ job.location | latex_escape }}{% raw %}\par
+{% endraw %}
 {{ job.dates | latex_escape }}\par
-
+{% raw %}
 \begin{itemize}
+{% endraw %}
 {% for bullet in job.bullets %}
-\item { {{ bullet | latex_escape }} }
+\item {{ bullet | latex_escape }}
 {% endfor %}
+{% raw %}
 \end{itemize}
 
 \vspace{8pt}
+{% endraw %}
 {% endfor %}
 
+{% raw %}
 \section*{Education}
 \noindent\rule{\linewidth}{0.4pt}
-
+{% endraw %}
 {% for edu in education %}
-\textbf{ {{ edu.degree | latex_escape }} }, {{ edu.school | latex_escape }} \hfill {{ edu.location | latex_escape }}\par
+{% raw %}
+\textbf{ {% endraw %}{{ edu.degree | latex_escape }}{% raw %} }, {% endraw %}{{ edu.school | latex_escape }}{% raw %} \hfill {% endraw %}{{ edu.location | latex_escape }}{% raw %}\par
+{% endraw %}
 {{ edu.dates | latex_escape }}\par
-
+{% raw %}
 \vspace{6pt}
+{% endraw %}
 {% endfor %}
 
+{% raw %}
 \end{multicols}
 
 \end{document}
+{% endraw %}
