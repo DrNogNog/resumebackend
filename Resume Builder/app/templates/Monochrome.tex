@@ -1,39 +1,34 @@
-{% raw %}
 \documentclass[11pt,a4paper]{article}
-
-%------------------ Packages ------------------
-\usepackage[T1]{fontenc} 
-\usepackage{lmodern}     
+\usepackage[margin=0.75in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage{xcolor}
-\usepackage{geometry}
-\geometry{margin=0.75in}
-
 \usepackage{multicol}
 \usepackage{enumitem}
 \setlist[itemize]{leftmargin=*, nosep, topsep=2pt, itemsep=2pt}
-
 \usepackage{parskip}
 \setlength{\parskip}{4pt}
+\pagestyle{empty}
 
 \definecolor{graybg}{gray}{0.90}
 \definecolor{grayline}{gray}{0.70}
 
-\pagestyle{empty}
-
 \begin{document}
-{% endraw %}
 
+{% raw %}
 % ====================== HEADER ======================
 \begin{center}
 \fbox{%
 \begin{minipage}{0.85\textwidth}
 \centering
 \vspace{10pt}
+{% endraw %}
 
-{\Huge \textbf{ {{ name | latex_escape }} }}\par
-{\Large {{ title | latex_escape }}}\par
+{\Huge \textbf{ {{ name }} }}\par
+{\Large {{ title }} }\par
+
+{% raw %}
 \vspace{10pt}
-
 \end{minipage}%
 }
 \end{center}
@@ -53,15 +48,13 @@
 \noindent\rule{\linewidth}{0.4pt}
 
 \textbf{Address:}\par
-{{ address.street | latex_escape }}, {{ address.city | latex_escape }}, 
-{{ address.state | latex_escape }} {{ address.zip | latex_escape }}, 
-{{ address.country | latex_escape }}\par
+{{ address.street }}, {{ address.city }}, {{ address.state }} {{ address.zip }}, {{ address.country }}\par
 
 \textbf{Phone:}\par
-{{ phone | latex_escape }}\par
+{{ phone }}\par
 
 \textbf{Email:}\par
-{{ email | latex_escape }}\par
+{{ email }}\par
 
 \vspace{12pt}
 
@@ -70,12 +63,12 @@
 
 \begin{itemize}
 {% for skill in skills %}
-\item {{ skill | latex_escape }}
+\item {{ skill }}
 {% endfor %}
 \end{itemize}
 
 \vspace{6pt}
-}%
+}% end parbox
 } % end colorbox
 
 % ------------------- RIGHT COLUMN -------------------
@@ -84,7 +77,7 @@
 \section*{Summary}
 \noindent\rule{\linewidth}{0.4pt}
 
-{{ summary | latex_escape }}\par
+{{ summary }}\par
 
 \vspace{15pt}
 
@@ -92,12 +85,12 @@
 \noindent\rule{\linewidth}{0.4pt}
 
 {% for job in experience %}
-\textbf{ {{ job.role | latex_escape }} }, {{ job.company | latex_escape }} \hfill {{ job.location | latex_escape }}\par
-{{ job.dates | latex_escape }}\par
+\textbf{ {{ job.role }} }, {{ job.company }} \hfill {{ job.location }}\par
+{{ job.dates }}\par
 
 \begin{itemize}
 {% for bullet in job.bullets %}
-\item {{ bullet | latex_escape }}
+\item {{ bullet }}
 {% endfor %}
 \end{itemize}
 
@@ -108,14 +101,12 @@
 \noindent\rule{\linewidth}{0.4pt}
 
 {% for edu in education %}
-\textbf{ {{ edu.degree | latex_escape }} }, {{ edu.school | latex_escape }} \hfill {{ edu.location | latex_escape }}\par
-{{ edu.dates | latex_escape }}\par
+\textbf{ {{ edu.degree }} }, {{ edu.school }} \hfill {{ edu.location }}\par
+{{ edu.dates }}\par
 
 \vspace{6pt}
 {% endfor %}
 
 \end{multicols}
 
-{% raw %}
 \end{document}
-{% endraw %}
