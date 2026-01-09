@@ -28,8 +28,8 @@
 \centering
 \vspace{10pt}
 
-{\Huge \textbf{{ name | latex_escape }}}\par
-{\Large {{ title | latex_escape }}}\par
+{\Huge \textbf{ {{ name | latex_escape }} }}\par
+{\Large {{ title | latex_escape }} }\par
 \vspace{10pt}
 
 \end{minipage}%
@@ -68,12 +68,12 @@
 
 \begin{itemize}
 {% for skill in skills %}
-\item {{ skill | latex_escape }}
+\item { {{ skill | latex_escape }} }
 {% endfor %}
 \end{itemize}
 
 \vspace{6pt}
-}%
+}% end parbox
 } % end colorbox
 
 % ------------------- RIGHT COLUMN -------------------
@@ -90,12 +90,12 @@
 \noindent\rule{\linewidth}{0.4pt}
 
 {% for job in experience %}
-\textbf{{ job.role | latex_escape }}, {{ job.company | latex_escape }} \hfill {{ job.location | latex_escape }}\par
+\textbf{ {{ job.role | latex_escape }} }, {{ job.company | latex_escape }} \hfill {{ job.location | latex_escape }}\par
 {{ job.dates | latex_escape }}\par
 
 \begin{itemize}
 {% for bullet in job.bullets %}
-\item {{ bullet | latex_escape }}
+\item { {{ bullet | latex_escape }} }
 {% endfor %}
 \end{itemize}
 
@@ -106,7 +106,7 @@
 \noindent\rule{\linewidth}{0.4pt}
 
 {% for edu in education %}
-\textbf{{ edu.degree | latex_escape }}, {{ edu.school | latex_escape }} \hfill {{ edu.location | latex_escape }}\par
+\textbf{ {{ edu.degree | latex_escape }} }, {{ edu.school | latex_escape }} \hfill {{ edu.location | latex_escape }}\par
 {{ edu.dates | latex_escape }}\par
 
 \vspace{6pt}
