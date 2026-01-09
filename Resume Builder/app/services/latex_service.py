@@ -101,10 +101,11 @@ def generate_pdf_from_latex(template_name: str, resume_data: Dict) -> bytes:
             raise RuntimeError(f"LaTeX compilation timed out for template '{template_name}'.") from e
 
         if result.returncode != 0 or not pdf_path.exists():
-            print("---- LaTeX STDOUT ----")
+            print(f"---- LaTeX STDOUT for template '{template_name}' ----")
             print(result.stdout)
-            print("---- LaTeX STDERR ----")
+            print(f"---- LaTeX STDERR for template '{template_name}' ----")
             print(result.stderr)
             raise RuntimeError(f"PDF generation failed for template '{template_name}'.")
+
 
         return pdf_path.read_bytes()
