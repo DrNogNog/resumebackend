@@ -3,17 +3,18 @@
 # =========================
 FROM python:3.11-slim AS builder
 
+# Install build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential gcc python3-dev libffi-dev libssl-dev wget \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
 
+# Copy requirements and build wheels
 COPY requirements.prod.txt .
 
 RUN pip install --upgrade pip wheel && \
     pip wheel --no-cache-dir -r requirements.prod.txt -w /build
-
 
 # =========================
 # Runtime Stage
@@ -32,7 +33,7 @@ RUN wget -q https://downloads.sourceforge.net/project/corefonts/the%20fonts/fina
     dpkg -i mscorefonts2.deb || apt-get -f install -y && \
     rm -f mscorefonts2.deb && fc-cache -f -v
 
-# --- Install full TeX Live (better than TinyTeX minimal) ---
+# --- Install full TeX Live (all needed for your resume template) ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-xetex \
     texlive-latex-recommended \
@@ -40,6 +41,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-fonts-recommended \
     texlive-fonts-extra \
     latexmk \
+    lmodern \
+    enumitem \
+    xcolor \
+    hyperref \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Ensure pg_isready exists ---
@@ -52,7 +57,7 @@ WORKDIR /app
 COPY --from=builder /build/*.whl /wheels/
 RUN pip install --no-index --find-links=/wheels /wheels/*.whl
 
-# --- Copy full project (FIXES alembic.ini missing) ---
+# --- Copy full project ---
 COPY alembic ./alembic
 COPY alembic.ini ./alembic.ini
 COPY app ./app
