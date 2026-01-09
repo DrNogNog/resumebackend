@@ -1,8 +1,8 @@
 \documentclass[11pt,a4paper]{article}
 
 %------------------ Packages ------------------
-\usepackage{fontspec}
-\setmainfont{Latin Modern Roman}
+\usepackage[T1]{fontenc}  % proper T1 font encoding
+\usepackage{lmodern}      % Latin Modern font (modern, clean, PDFLaTeX friendly)
 
 \usepackage{xcolor}
 \usepackage{geometry}
@@ -99,6 +99,7 @@
 ((* for job in experience *))
 \textbf{((( job.role | latex_escape ))), ((( job.company | latex_escape ))) } \hfill ((( job.location | latex_escape )))\\
 ((( job.dates | latex_escape )))
+
 \begin{itemize}
   ((* for bullet in job.bullets *))
   \item ((( bullet | latex_escape )))
@@ -115,6 +116,7 @@
 ((* for edu in education *))
 \textbf{((( edu.degree | latex_escape ))), ((( edu.school | latex_escape ))) } \hfill ((( edu.location | latex_escape )))\\
 ((( edu.dates | latex_escape )))
+
 \vspace{6pt}
 ((* endfor *))
 
