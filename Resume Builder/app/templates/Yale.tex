@@ -7,8 +7,8 @@
 \usepackage{booktabs}
 
 %==================== Fonts ====================%
-\usepackage[T1]{fontenc}  % Proper T1 encoding
-\usepackage{lmodern}      % Latin Modern font
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 
 \begin{document}
 \small
@@ -16,14 +16,14 @@
 
 %==================== HEADER ====================%
 \begin{center}
-  {\LARGE \textbf{{ full_name | latex_escape }}}\\[2pt]
+  {\LARGE \textbf{ {{ full_name | latex_escape }} }}\\[2pt]
   {{ location | latex_escape }} $|$ {{ phone | latex_escape }} $|$ 
   \url{ {{ email | latex_escape }} } $|$ {{ linkedin | latex_escape }}
 \end{center}
 
 \vspace{4pt}
 \noindent\rule{\linewidth}{0.4pt}
-\vspace{-10pt}
+\vspace{-8pt}
 
 %==================== EDUCATION ====================%
 \section*{Education}
@@ -48,7 +48,7 @@ Awards: {{ education.highschool_awards | join(", ") | latex_escape }}\\
 
 \vspace{6pt}
 \noindent\rule{\linewidth}{0.4pt}
-\vspace{-10pt}
+\vspace{-8pt}
 
 %==================== EXPERIENCE ====================%
 \section*{Experience}
@@ -72,7 +72,7 @@ Awards: {{ education.highschool_awards | join(", ") | latex_escape }}\\
 
 \vspace{6pt}
 \noindent\rule{\linewidth}{0.4pt}
-\vspace{-10pt}
+\vspace{-8pt}
 
 %==================== ADDITIONAL EXPERIENCE ====================%
 \section*{Additional Experience}
@@ -96,7 +96,7 @@ Awards: {{ education.highschool_awards | join(", ") | latex_escape }}\\
 
 \vspace{6pt}
 \noindent\rule{\linewidth}{0.4pt}
-\vspace{-10pt}
+\vspace{-8pt}
 
 %==================== SKILLS ====================%
 \section*{Skills and Interests}

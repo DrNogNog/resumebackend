@@ -1,8 +1,8 @@
 \documentclass[11pt,a4paper]{article}
 
 %------------------ Packages ------------------
-\usepackage[T1]{fontenc}        % Proper T1 font encoding
-\usepackage{lmodern}            % Latin Modern font (modern and clean)
+\usepackage[T1]{fontenc} 
+\usepackage{lmodern}     
 \usepackage{xcolor}
 \usepackage{geometry}
 \geometry{margin=0.75in}
@@ -28,10 +28,10 @@
 \centering
 \vspace{10pt}
 
-{\Huge \textbf{((( name | latex_escape )))}}\\[6pt]
-{\Large ((( title | latex_escape ))) }\\[10pt]
-
+{\Huge \textbf{{ name | latex_escape }}}\par
+{\Large {{ title | latex_escape }}}\par
 \vspace{10pt}
+
 \end{minipage}%
 }
 \end{center}
@@ -50,20 +50,16 @@
 \section*{Details}
 \noindent\rule{\linewidth}{0.4pt}
 
-\textbf{Address:}\\
-((( address.street | latex_escape ))), ((( address.city | latex_escape ))), 
-((( address.state | latex_escape ))) ((( address.zip | latex_escape ))), 
-((( address.country | latex_escape )))
+\textbf{Address:}\par
+{{ address.street | latex_escape }}, {{ address.city | latex_escape }}, 
+{{ address.state | latex_escape }} {{ address.zip | latex_escape }}, 
+{{ address.country | latex_escape }}\par
 
-\vspace{8pt}
+\textbf{Phone:}\par
+{{ phone | latex_escape }}\par
 
-\textbf{Phone:}\\
-((( phone | latex_escape )))
-
-\vspace{8pt}
-
-\textbf{Email:}\\
-((( email | latex_escape )))
+\textbf{Email:}\par
+{{ email | latex_escape }}\par
 
 \vspace{12pt}
 
@@ -71,9 +67,9 @@
 \noindent\rule{\linewidth}{0.4pt}
 
 \begin{itemize}
-((* for skill in skills *))
-\item ((( skill | latex_escape )))
-((* endfor *))
+{% for skill in skills %}
+\item {{ skill | latex_escape }}
+{% endfor %}
 \end{itemize}
 
 \vspace{6pt}
@@ -86,35 +82,35 @@
 \section*{Summary}
 \noindent\rule{\linewidth}{0.4pt}
 
-((( summary | latex_escape )))
+{{ summary | latex_escape }}\par
 
 \vspace{15pt}
 
 \section*{Experience}
 \noindent\rule{\linewidth}{0.4pt}
 
-((* for job in experience *))
-\textbf{((( job.role | latex_escape ))), ((( job.company | latex_escape ))) } \hfill ((( job.location | latex_escape )))\\
-((( job.dates | latex_escape )))\\
+{% for job in experience %}
+\textbf{{ job.role | latex_escape }}, {{ job.company | latex_escape }} \hfill {{ job.location | latex_escape }}\par
+{{ job.dates | latex_escape }}\par
 
 \begin{itemize}
-((* for bullet in job.bullets *))
-\item ((( bullet | latex_escape )))
-((* endfor *))
+{% for bullet in job.bullets %}
+\item {{ bullet | latex_escape }}
+{% endfor %}
 \end{itemize}
 
 \vspace{8pt}
-((* endfor *))
+{% endfor %}
 
 \section*{Education}
 \noindent\rule{\linewidth}{0.4pt}
 
-((* for edu in education *))
-\textbf{((( edu.degree | latex_escape ))), ((( edu.school | latex_escape ))) } \hfill ((( edu.location | latex_escape )))\\
-((( edu.dates | latex_escape )))\\
+{% for edu in education %}
+\textbf{{ edu.degree | latex_escape }}, {{ edu.school | latex_escape }} \hfill {{ edu.location | latex_escape }}\par
+{{ edu.dates | latex_escape }}\par
 
 \vspace{6pt}
-((* endfor *))
+{% endfor %}
 
 \end{multicols}
 

@@ -48,21 +48,21 @@
 \begin{tcolorbox}[headerstyle]
 \begin{minipage}[t]{0.58\textwidth}
   \color{white}
-  {\fontsize{26}{30}\selectfont\bfseries {{ name | latex_escape }}}\par
+  {\fontsize{26}{30}\selectfont\bfseries { {{ name | latex_escape }} }}\par
   \vspace{5pt}
-  {\fontsize{14}{17}\selectfont {{ title | latex_escape }}}\par
+  {\fontsize{14}{17}\selectfont { {{ title | latex_escape }} }}\par
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.40\textwidth}
   \raggedleft
   \color{white}
-  {\fontsize{10}{12}\selectfont {{ header_summary | latex_escape }}}\par
+  {\fontsize{10}{12}\selectfont { {{ header_summary | latex_escape }} }}\par
   \vspace{6pt}
-  {{ email | latex_escape }}\par
+  {\texttt{ {{ email | latex_escape }} }}\par
   \vspace{4pt}
   \colorbox{phoneblue}{\color{white}\bfseries\enspace {{ phone | latex_escape }} \enspace}\par
   \vspace{4pt}
-  {{ location | latex_escape }}
+  { {{ location | latex_escape }} }
 \end{minipage}%
 \end{tcolorbox}
 
@@ -76,8 +76,8 @@
 \vspace{4pt}
 \normalsize\color{black}
 {% for edu in education %}
-\textbf{{ edu.school | latex_escape }}\par
-\textit{{ edu.location | latex_escape }} \hfill {{ edu.dates | latex_escape }}\par
+\textbf{ {{ edu.school | latex_escape }} }\par
+\textit{ {{ edu.location | latex_escape }} } \hfill {{ edu.dates | latex_escape }}\par
 {{ edu.degree | latex_escape }}\par
 \vspace{12pt}
 {% endfor %}
@@ -87,7 +87,7 @@
 \normalsize\color{black}
 \begin{itemize}
 {% for skill in skills %}
-\item {{ skill | latex_escape }}
+\item { {{ skill | latex_escape }} }
 {% endfor %}
 \end{itemize}
 
@@ -98,10 +98,10 @@
 \vspace{4pt}
 \normalsize\color{black}
 {% for job in experience %}
-\textbf{{ job.role | latex_escape }} -- {{ job.company | latex_escape }}\par
-\textit{{ job.location | latex_escape }} \hfill {{ job.dates | latex_escape }}\par
+\textbf{ {{ job.role | latex_escape }} } -- { {{ job.company | latex_escape }} }\par
+\textit{ {{ job.location | latex_escape }} } \hfill {{ job.dates | latex_escape }}\par
 {% for bullet in job.bullets %}
-\noindent{{ bullet | latex_escape }}\par
+\noindent { {{ bullet | latex_escape }} }\par
 {% endfor %}
 \vspace{12pt}
 {% endfor %}
