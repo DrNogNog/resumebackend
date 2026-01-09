@@ -4,7 +4,7 @@
 FROM python:3.11-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential gcc python3-dev libffi-dev libssl-dev \
+    build-essential gcc python3-dev libffi-dev libssl-dev wget \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
@@ -20,29 +20,30 @@ RUN pip install --upgrade pip wheel && \
 # =========================
 FROM python:3.11-slim
 
-# --- OS + postgres client + Microsoft fonts (Calibri fix) ---
+# --- OS deps + Postgres client + fonts ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
-    libffi-dev libssl-dev wget ca-certificates fontconfig fonts-dejavu-core perl \
-    cabextract xfonts-utils \
-    && wget https://downloads.sourceforge.net/project/corefonts/the%20fonts/final/mscorefonts2.deb \
-    && dpkg -i mscorefonts2.deb || apt-get -f install -y \
-    && rm -f mscorefonts2.deb \
-    && fc-cache -f -v \
+    libffi-dev libssl-dev wget ca-certificates fontconfig fonts-dejavu-core \
+    cabextract xfonts-utils perl unzip \
     && rm -rf /var/lib/apt/lists/*
+
+# --- Microsoft Core Fonts (Calibri fix) ---
+RUN wget -q https://downloads.sourceforge.net/project/corefonts/the%20fonts/final/mscorefonts2.deb && \
+    dpkg -i mscorefonts2.deb || apt-get -f install -y && \
+    rm -f mscorefonts2.deb && fc-cache -f -v
+
+# --- Install full TeX Live (better than TinyTeX minimal) ---
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    texlive-xetex \
+    texlive-latex-recommended \
+    texlive-latex-extra \
+    texlive-fonts-recommended \
+    texlive-fonts-extra \
+    latexmk \
+    && rm -rf /var/lib/apt/lists/*
+
 # --- Ensure pg_isready exists ---
 RUN which pg_isready && pg_isready --version
-
-# --- Install TinyTeX ---
-RUN wget -qO- "https://yihui.org/tinytex/install-bin-unix.sh" | sh -s -- --no-path && \
-    mv /root/.TinyTeX /opt/TinyTeX && \
-    ln -s /opt/TinyTeX/bin/x86_64-linux/tlmgr /usr/local/bin/tlmgr
-
-ENV PATH="/opt/TinyTeX/bin/x86_64-linux:${PATH}"
-
-RUN tlmgr update --self && tlmgr install \
-    xetex collection-xetex collection-latexrecommended \
-    collection-latexextra collection-fontsrecommended fontspec latexmk
 
 # --- App workspace ---
 WORKDIR /app
