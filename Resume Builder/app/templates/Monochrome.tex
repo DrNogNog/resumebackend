@@ -87,7 +87,7 @@
 \noindent\rule{\linewidth}{0.4pt}
 \vspace{-1.0\baselineskip}
 
-((( summary | latex_escape )))
+((( summary | latex_escape )))  % <-- no trailing \\
 
 \vspace{15pt}
 
@@ -97,8 +97,8 @@
 \vspace{-1.0\baselineskip}
 
 ((* for job in experience *))
-\textbf{((( job.role | latex_escape ))), ((( job.company | latex_escape ))) } \hfill ((( job.location | latex_escape )))\\
-((( job.dates | latex_escape )))
+\textbf{((( job.role | latex_escape ))), ((( job.company | latex_escape ))) } \hfill ((( job.location | latex_escape )))\par
+((( job.dates | latex_escape )))\par  % use \par instead of \\
 
 \begin{itemize}
   ((* for bullet in job.bullets *))
@@ -114,12 +114,8 @@
 \vspace{-1.0\baselineskip}
 
 ((* for edu in education *))
-\textbf{((( edu.degree | latex_escape ))), ((( edu.school | latex_escape ))) } \hfill ((( edu.location | latex_escape )))\\
-((( edu.dates | latex_escape )))
+\textbf{((( edu.degree | latex_escape ))), ((( edu.school | latex_escape ))) } \hfill ((( edu.location | latex_escape )))\par
+((( edu.dates | latex_escape )))\par
 
 \vspace{6pt}
 ((* endfor *))
-
-\end{multicols}
-
-\end{document}
