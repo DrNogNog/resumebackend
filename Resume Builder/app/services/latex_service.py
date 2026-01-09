@@ -68,19 +68,15 @@ def sanitize_payload(obj):
 # ----------------- MAIN FUNCTION -----------------
 
 def generate_pdf_from_latex(template_name: str, resume_data: Dict) -> bytes:
-    """
-    Renders a LaTeX template with sanitized user data and generates a PDF.
-    """
     latex_raw = load_template(template_name)
     safe_data = sanitize_payload(resume_data)
-
     template = env.from_string(latex_raw)
     latex_filled = template.render(**safe_data)
 
     job_id = uuid.uuid4().hex
 
     from app.core.config import settings
-    tex_bin = getattr(settings, 'TEX_BIN', os.getenv('TEX_BIN', 'xelatex'))
+    tex_bin = getattr(settings, "TEX_BIN", os.getenv("TEX_BIN", "xelatex"))
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
@@ -95,17 +91,18 @@ def generate_pdf_from_latex(template_name: str, resume_data: Dict) -> bytes:
                  "-output-directory", str(tmpdir_path), str(tex_path)],
                 capture_output=True,
                 text=True,
-                timeout=30,
+                timeout=60,  # increase timeout
             )
         except subprocess.TimeoutExpired as e:
             raise RuntimeError(f"LaTeX compilation timed out for template '{template_name}'.") from e
 
+        # LOG EVERYTHING if failed
         if result.returncode != 0 or not pdf_path.exists():
-            print(f"---- LaTeX STDOUT for template '{template_name}' ----")
+            print("----- LaTeX STDOUT -----")
             print(result.stdout)
-            print(f"---- LaTeX STDERR for template '{template_name}' ----")
+            print("----- LaTeX STDERR -----")
             print(result.stderr)
             raise RuntimeError(f"PDF generation failed for template '{template_name}'.")
 
-
         return pdf_path.read_bytes()
+
