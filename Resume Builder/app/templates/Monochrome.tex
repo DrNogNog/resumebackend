@@ -30,8 +30,10 @@
 \begin{multicols}{2}
 
 % LEFT COLUMN BOX
+{% raw %}
 \colorbox{graybg}{%
   \parbox{\dimexpr\columnwidth-2\fboxsep\relax}{%
+{% endraw %}
 
 \section*{Details}
 \noindent\rule{\linewidth}{0.4pt}
@@ -54,9 +56,10 @@
 {% endfor %}
 \end{itemize}
 
+{% raw %}
   } % end parbox
 } % end colorbox
-
+{% endraw %}
 % ------------------- RIGHT COLUMN -------------------
 \columnbreak
 
