@@ -15,110 +15,73 @@
 
 \begin{document}
 
-{% raw %}
 % ====================== HEADER ======================
 \begin{center}
-\fbox{%
-\begin{minipage}{0.85\textwidth}
-\centering
-\vspace{10pt}
-{% endraw %}
-
-{\Huge \textbf{ {{ name }} }}\par
-{\Large {{ title }} }\par
-
-{% raw %}
-\vspace{10pt}
-\end{minipage}%
-}
+\textbf{\LARGE {{ name }}}\\
+{{ title }}\\[4pt]
+{{ phone }} \textbar{} 
+\href{mailto:{{ email }}}{\texttt{ {{ email }} }} \textbar{} 
+\href{ {{ linkedin }}}{\texttt{ {{ linkedin_short }} }} \textbar{} 
+\href{ {{ github }}}{\texttt{ {{ github_short }} }}
 \end{center}
 
-\vspace{15pt}
+\vspace{10pt}
 
-% ====================== TWO COLUMNS ======================
 \begin{multicols}{2}
 
 % ------------------- LEFT COLUMN -------------------
 \noindent
 \colorbox{graybg}{%
 \parbox{\dimexpr\columnwidth-2\fboxsep\relax}{%
-\vspace{6pt}
 
 \section*{Details}
 \noindent\rule{\linewidth}{0.4pt}
 
-\textbf{Address:}\par
-{% endraw %}
-{{ address.street }}, {{ address.city }}, {{ address.state }} {{ address.zip }}, {{ address.country }}\par
-{% raw %}
+\textbf{Address:}\\
+{{ address.street }}, {{ address.city }}, {{ address.state }} {{ address.zip }}, {{ address.country }}\\[2pt]
 
-\textbf{Phone:}\par
-{{ phone }}\par
+\textbf{Phone:}\\
+{{ phone }}\\[2pt]
 
-\textbf{Email:}\par
-{{ email }}\par
-
-\vspace{12pt}
+\textbf{Email:}\\
+{{ email }}\\[2pt]
 
 \section*{Skills}
 \noindent\rule{\linewidth}{0.4pt}
 
 \begin{itemize}
-{% endraw %}
 {% for skill in skills %}
-\item {{ skill }}
+  \item {{ skill }}
 {% endfor %}
-{% raw %}
 \end{itemize}
 
-\vspace{6pt}
-}% end parbox
-} % end colorbox
+}} % end parbox and colorbox
 
 % ------------------- RIGHT COLUMN -------------------
 \columnbreak
 
 \section*{Summary}
 \noindent\rule{\linewidth}{0.4pt}
-
-{% endraw %}
-{{ summary }}\par
-{% raw %}
-
-\vspace{15pt}
+{{ summary }}\\[2pt]
 
 \section*{Experience}
 \noindent\rule{\linewidth}{0.4pt}
-
-{% endraw %}
 {% for job in experience %}
-{% raw %}
-\textbf{ {{ job.role }} }, {{ job.company }} \hfill {{ job.location }}\par
-{{ job.dates }}\par
-
+\textbf{ {{ job.role }} }, {{ job.company }} \hfill {{ job.location }}\\
+{{ job.dates }}\\
 \begin{itemize}
-{% endraw %}
 {% for bullet in job.bullets %}
-\item {{ bullet }}
+  \item {{ bullet }}
 {% endfor %}
-{% raw %}
 \end{itemize}
-
 \vspace{8pt}
-{% endraw %}
 {% endfor %}
 
 \section*{Education}
 \noindent\rule{\linewidth}{0.4pt}
-
-{% endraw %}
 {% for edu in education %}
-{% raw %}
-\textbf{ {{ edu.degree }} }, {{ edu.school }} \hfill {{ edu.location }}\par
-{{ edu.dates }}\par
-
-\vspace{6pt}
-{% endraw %}
+\textbf{ {{ edu.degree }} }, {{ edu.school }} \hfill {{ edu.location }}\\
+{{ edu.dates }}\\[2pt]
 {% endfor %}
 
 \end{multicols}
