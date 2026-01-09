@@ -1,9 +1,8 @@
 \documentclass[11pt,a4paper]{article}
 
 %------------------ Packages ------------------
-\usepackage[T1]{fontenc}  % proper T1 font encoding
-\usepackage{lmodern}      % Latin Modern font for pdfLaTeX
-
+\usepackage[T1]{fontenc}        % Proper T1 font encoding
+\usepackage{lmodern}            % Latin Modern font
 \usepackage{xcolor}
 \usepackage{geometry}
 \geometry{
@@ -22,11 +21,12 @@
 
 \usepackage[many]{tcolorbox}
 
+%------------------ Colors ------------------
 \definecolor{headerblue}{RGB}{23,58,108}     % Header background
 \definecolor{phoneblue}{RGB}{51,85,137}      % Phone box
 \definecolor{sectionblue}{RGB}{23,58,108}    % Section titles
 
-% tcolorbox style for header
+%------------------ Header Box Style ------------------
 \tcbset{
   headerstyle/.style={
     colback=headerblue,
@@ -44,22 +44,23 @@
 
 \begin{document}
 
-% ====================== BLUE HEADER WITH INLINE SUMMARY ======================
+% ====================== BLUE HEADER ======================
 \begin{tcolorbox}[headerstyle]
 \begin{minipage}[t]{0.58\textwidth}
   \color{white}
-  \fontsize{26}{30}\selectfont\bfseries {{ name | latex_escape }}\par
+  {\fontsize{26}{30}\selectfont\bfseries {{ name | latex_escape }}}\par
   \vspace{5pt}
-  \fontsize{14}{17}\selectfont {{ title | latex_escape }}
+  {\fontsize{14}{17}\selectfont {{ title | latex_escape }}}\par
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.40\textwidth}
-  \raggedleft\color{white}\fontsize{9.5}{11.8}\selectfont
-  {{ header_summary | latex_escape }}\par
+  \raggedleft
+  \color{white}
+  {\fontsize{10}{12}\selectfont {{ header_summary | latex_escape }}}\par
   \vspace{6pt}
   {{ email | latex_escape }}\par
   \vspace{4pt}
-  \colorbox{phoneblue}{\color{white}\bfseries\enspace{{ phone | latex_escape }}\enspace}\par
+  \colorbox{phoneblue}{\color{white}\bfseries\enspace {{ phone | latex_escape }} \enspace}\par
   \vspace{4pt}
   {{ location | latex_escape }}
 \end{minipage}%
@@ -67,7 +68,7 @@
 
 \vspace{16pt}
 
-% ====================== TWO COLUMNS BELOW HEADER ======================
+% ====================== TWO COLUMNS ======================
 \begin{multicols}{2}
 
 % ------------------- LEFT COLUMN -------------------

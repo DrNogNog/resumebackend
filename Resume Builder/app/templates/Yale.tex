@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[11pt]{article}
 \usepackage[margin=0.75in]{geometry}
 \usepackage{enumitem}
 \usepackage{parskip}
@@ -7,65 +7,64 @@
 \usepackage{booktabs}
 
 %==================== Fonts ====================%
-\usepackage[T1]{fontenc}  % proper T1 encoding
-\usepackage{lmodern}      % Latin Modern font (replaces Calibri)
+\usepackage[T1]{fontenc}  % Proper T1 encoding
+\usepackage{lmodern}      % Latin Modern font
 
 \begin{document}
 \small
 \renewcommand{\baselinestretch}{0.95}
 
-%==================== Header ====================%
+%==================== HEADER ====================%
 \begin{center}
-  \textbf{\large {{ full_name | latex_escape }}}\\[2pt]
-  {{ location | latex_escape }} $|$ {{ phone | latex_escape }} $|$ \url{ {{ email | latex_escape }} } $|$ {{ linkedin | latex_escape }}
+  {\LARGE \textbf{{ full_name | latex_escape }}}\\[2pt]
+  {{ location | latex_escape }} $|$ {{ phone | latex_escape }} $|$ 
+  \url{ {{ email | latex_escape }} } $|$ {{ linkedin | latex_escape }}
 \end{center}
 
 \vspace{4pt}
 \noindent\rule{\linewidth}{0.4pt}
-\vspace{-12pt}
+\vspace{-10pt}
 
-%==================== Education ====================%
-\noindent{\bfseries EDUCATION}
+%==================== EDUCATION ====================%
+\section*{Education}
 
-\noindent\textbf{ {{ education.university | latex_escape }} },
-{{ education.university_location | latex_escape }}
-\hfill {{ education.graduation_month_year | latex_escape }}\par
-\textit{ {{ education.degree | latex_escape }} }\par
+\noindent\textbf{ {{ education.university | latex_escape }} }, {{ education.university_location | latex_escape }}
+\hfill {{ education.graduation_month_year | latex_escape }}\\
+\textit{ {{ education.degree | latex_escape }} }\\
 {% if education.university_courses %}
-{{ education.university_courses | join(", ") | latex_escape }}\par
+Courses: {{ education.university_courses | join(", ") | latex_escape }}\\
 {% endif %}
 {% if education.university_awards %}
-{{ education.university_awards | join(", ") | latex_escape }}\par
+Awards: {{ education.university_awards | join(", ") | latex_escape }}\\
 {% endif %}
 
 \vspace{2pt}
 
-\noindent\textbf{ {{ education.highschool | latex_escape }} },
-{{ education.highschool_location | latex_escape }}
-\hfill {{ education.highschool_graduation | latex_escape }}\par
+\noindent\textbf{ {{ education.highschool | latex_escape }} }, {{ education.highschool_location | latex_escape }}
+\hfill {{ education.highschool_graduation | latex_escape }}\\
 {% if education.highschool_awards %}
-{{ education.highschool_awards | join(", ") | latex_escape }}\par
+Awards: {{ education.highschool_awards | join(", ") | latex_escape }}\\
 {% endif %}
 
 \vspace{6pt}
 \noindent\rule{\linewidth}{0.4pt}
-\vspace{-12pt}
+\vspace{-10pt}
 
 %==================== EXPERIENCE ====================%
-\noindent{\bfseries EXPERIENCE}
+\section*{Experience}
 
 {% if public_section_description %}
-\textit{ {{ public_section_description | latex_escape }} }\par
+\textit{ {{ public_section_description | latex_escape }} }\\
 {% endif %}
 
 {% for exp in experiences %}
-\noindent\textbf{ {{ exp.company | latex_escape }} }{% if exp.role %}, \textit{ {{ exp.role | latex_escape }} }{% endif %}{% if exp.location %}, {{ exp.location | latex_escape }}{% endif %}{% if exp.dates %} \hfill {{ exp.dates | latex_escape }}{% endif %}\par
+\noindent\textbf{ {{ exp.company | latex_escape }} }{% if exp.role %}, \textit{ {{ exp.role | latex_escape }} }{% endif %}{% if exp.location %}, {{ exp.location | latex_escape }}{% endif %}{% if exp.dates %} \hfill {{ exp.dates | latex_escape }}{% endif %}\\
 
 {% if exp.bullets %}
 \begin{itemize}[leftmargin=*, topsep=2pt, itemsep=1pt]
-    {% for b in exp.bullets %}
-    \item {{ b | latex_escape }}
-    {% endfor %}
+  {% for b in exp.bullets %}
+  \item {{ b | latex_escape }}
+  {% endfor %}
 \end{itemize}
 {% endif %}
 
@@ -73,23 +72,23 @@
 
 \vspace{6pt}
 \noindent\rule{\linewidth}{0.4pt}
-\vspace{-12pt}
+\vspace{-10pt}
 
 %==================== ADDITIONAL EXPERIENCE ====================%
-\noindent{\bfseries ADDITIONAL EXPERIENCE}
+\section*{Additional Experience}
 
 {% if additional_section_description %}
-\textit{ {{ additional_section_description | latex_escape }} }\par
+\textit{ {{ additional_section_description | latex_escape }} }\\
 {% endif %}
 
 {% for exp in additional_experiences %}
-\noindent\textbf{ {{ exp.company | latex_escape }} }{% if exp.role %}, \textit{ {{ exp.role | latex_escape }} }{% endif %}{% if exp.location %}, {{ exp.location | latex_escape }}{% endif %}{% if exp.dates %} \hfill {{ exp.dates | latex_escape }}{% endif %}\par
+\noindent\textbf{ {{ exp.company | latex_escape }} }{% if exp.role %}, \textit{ {{ exp.role | latex_escape }} }{% endif %}{% if exp.location %}, {{ exp.location | latex_escape }}{% endif %}{% if exp.dates %} \hfill {{ exp.dates | latex_escape }}{% endif %}\\
 
 {% if exp.bullets %}
 \begin{itemize}[leftmargin=*, topsep=2pt, itemsep=1pt]
-    {% for b in exp.bullets %}
-    \item {{ b | latex_escape }}
-    {% endfor %}
+  {% for b in exp.bullets %}
+  \item {{ b | latex_escape }}
+  {% endfor %}
 \end{itemize}
 {% endif %}
 
@@ -97,10 +96,10 @@
 
 \vspace{6pt}
 \noindent\rule{\linewidth}{0.4pt}
-\vspace{-12pt}
+\vspace{-10pt}
 
 %==================== SKILLS ====================%
-\noindent{\bfseries SKILLS AND INTERESTS}
+\section*{Skills and Interests}
 
 \begin{itemize}[leftmargin=*]
   {% if computer_skills %}
@@ -109,6 +108,6 @@
   {% if language_skills %}
   \item \textbf{Language Skills:} {{ language_skills | join(", ") | latex_escape }}
   {% endif %}
-</begin{itemize}
+\end{itemize}
 
 \end{document}
