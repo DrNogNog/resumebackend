@@ -42,9 +42,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-fonts-extra \
     latexmk \
     lmodern \
-    enumitem \
-    xcolor \
-    hyperref \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Ensure pg_isready exists ---
