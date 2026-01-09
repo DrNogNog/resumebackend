@@ -20,6 +20,21 @@
 % Full-width rule under sections
 \newcommand{\sectionrule}{\vspace{2pt}\noindent\hrule\vspace{8pt}}
 
+% Helper to escape LaTeX special chars
+{% macro latex_escape(text) -%}
+{{ text
+    | replace('&', '\&')
+    | replace('%', '\%')
+    | replace('$', '\$')
+    | replace('#', '\#')
+    | replace('_', '\_')
+    | replace('{', '\{')
+    | replace('}', '\}')
+    | replace('~', '\textasciitilde{}')
+    | replace('^', '\^{}')
+    | replace('\\', '\textbackslash{}') }}
+{%- endmacro %}
+
 \begin{document}
 \pagestyle{empty}
 
@@ -27,10 +42,11 @@
 % Header
 % -----------------------
 \begin{center}
-    {\LARGE \textbf{ {{ name | e }} }} \\[6pt]
-    {{ phone | e }} \ $|$ \href{mailto:{{ email }}}{ {{ email | e }} } \ $|$ 
-    \href{ {{ linkedin }} }{ {{ linkedin_short | e }} } \ $|$ 
-    \href{ {{ github }} }{ {{ github_short | e }} }
+    {\LARGE \textbf{ {{ latex_escape(name) }} }} \\[6pt]
+    {{ latex_escape(phone) }} \textbar{} 
+    \href{mailto:{{ email }}}{ {{ latex_escape(email) }} } \textbar{} 
+    \href{ {{ linkedin }} }{ {{ latex_escape(linkedin_short) }} } \textbar{} 
+    \href{ {{ github }} }{ {{ latex_escape(github_short) }} }
 \end{center}
 
 \vspace{-15pt}
@@ -41,8 +57,8 @@
 \noindent\textbf{EDUCATION}\\[2pt]
 \sectionrule
 {% for edu in education %}
-\textbf{ {{ edu.degree | e }} } \\
-{{ edu.school | e }} \hfill {{ edu.years | e }} \\
+\textbf{ {{ latex_escape(edu.degree) }} } \\
+{{ latex_escape(edu.school) }} \hfill {{ latex_escape(edu.years) }} \\
 {% endfor %}
 
 % -----------------------
@@ -51,12 +67,12 @@
 \noindent\textbf{EXPERIENCE}\\[2pt]
 \sectionrule
 {% for exp in experience %}
-\textbf{ {{ exp.role | e }} } \hfill {{ exp.years | e }} \\
-{{ exp.company | e }}
+\textbf{ {{ latex_escape(exp.role) }} } \hfill {{ latex_escape(exp.years) }} \\
+{{ latex_escape(exp.company) }}
 {% if exp.descriptions %}
 \begin{itemize}[leftmargin=*]
   {% for bullet in exp.descriptions %}
-  \item {{ bullet | e }}
+  \item {{ latex_escape(bullet) }}
   {% endfor %}
 \end{itemize}
 {% endif %}
@@ -69,12 +85,12 @@
 \noindent\textbf{LEADERSHIP EXPERIENCE}\\[2pt]
 \sectionrule
 {% for lead in leadership %}
-\textbf{ {{ lead.position | e }} } \hfill {{ lead.years | e }} \\
-{{ lead.organization | e }}
+\textbf{ {{ latex_escape(lead.position) }} } \hfill {{ latex_escape(lead.years) }} \\
+{{ latex_escape(lead.organization) }}
 {% if lead.descriptions %}
 \begin{itemize}[leftmargin=*]
   {% for bullet in lead.descriptions %}
-  \item {{ bullet | e }}
+  \item {{ latex_escape(bullet) }}
   {% endfor %}
 \end{itemize}
 {% endif %}
@@ -88,11 +104,11 @@
 \noindent\textbf{PROJECTS}\\[2pt]
 \sectionrule
 {% for proj in projects %}
-\textbf{ {{ proj.name | e }} } [{{ proj.technologies | join(', ') }}]
+\textbf{ {{ latex_escape(proj.name) }} } [{{ proj.technologies | join(', ') }}]
 {% if proj.descriptions %}
 \begin{itemize}[leftmargin=*]
   {% for bullet in proj.descriptions %}
-  \item {{ bullet | e }}
+  \item {{ latex_escape(bullet) }}
   {% endfor %}
 \end{itemize}
 {% endif %}
