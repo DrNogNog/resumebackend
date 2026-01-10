@@ -1,20 +1,30 @@
 version: "3.9"
 
 services:
-  nginx:
-    image: nginx:stable
+  ollama:
+    image: ollama/ollama:0.13.5
+    container_name: ollama
     ports:
-      - "80:80"
-      - "443:443"
+      - "11434:11434"
     volumes:
-      - ./nginx/conf:/etc/nginx/conf.d:ro
-      - ./certs:/etc/letsencrypt:ro
-      - uploads:/app/uploads
-    depends_on:
-      - api
-    restart: unless-stopped
+      - ollama-data:/root/.ollama
     networks:
       - backend
+    command: serve   # 0.13.5 only needs 'serve', no --host/--port
+    restart: unless-stopped
+
+  resume-postgres:
+    image: postgres:15
+    container_name: resume-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: resume_builder
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+    restart: unless-stopped
 
   api:
     build:
@@ -27,45 +37,39 @@ services:
       - ./Resume Builder/.env
     environment:
       ENV: production
-      TEX_BIN: xelatex
       DATABASE_URL: postgresql+asyncpg://postgres:1234@resume-postgres:5432/resume_builder
       ALEMBIC_SQLALCHEMY_URL: postgresql+pg8000://postgres:1234@resume-postgres:5432/resume_builder
+      TEX_BIN: xelatex
       SECRET_KEY: Pinky3Panda03)
-      OLLAMA_BASE_URL: http://ollama:11434  # <-- updated for container network
+      OLLAMA_MODEL: "llama3.2:latest"   # set your model here
     expose:
       - "8000"
     depends_on:
       - resume-postgres
-      - ollama   # <-- ensure backend waits for Ollama
-    restart: unless-stopped
+      - ollama
     networks:
       - backend
-
-  resume-postgres:
-    image: postgres:15
-    container_name: resume-postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: resume_builder
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
-    networks:
-      - backend
 
-  ollama:
-    image: ollama/ollama
-    container_name: ollama
+  nginx:
+    image: nginx:stable
     ports:
-      - "11434:11434"  # host port mapping
-    restart: unless-stopped
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d:ro
+      - ./certs:/etc/letsencrypt:ro
+      - uploads:/app/uploads
+    depends_on:
+      - api
     networks:
       - backend
+    restart: unless-stopped
 
 volumes:
-  uploads:
+  ollama-data:
   pgdata:
+  uploads:
 
 networks:
   backend:
