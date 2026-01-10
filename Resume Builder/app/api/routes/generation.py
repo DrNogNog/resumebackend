@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.services.auth_service import get_current_user
 import httpx
+import traceback
 
 router = APIRouter()
 
@@ -75,10 +76,17 @@ async def generate(
         one = await call_ollama(prompt_one)
         two = await call_ollama(prompt_two)
         three = await call_ollama(prompt_three)
-    except httpx.ConnectError:
+    # except httpx.ConnectError:
+    #     raise HTTPException(
+    #         status_code=503,
+    #         detail="LLM service is currently unavailable. Please try again later."
+    #     )
+    except Exception as e:
+        print("OLLAMA FAILURE:", repr(e))
+        traceback.print_exc()
         raise HTTPException(
             status_code=503,
-            detail="LLM service is currently unavailable. Please try again later."
+            detail=f"Ollama error: {type(e).__name__}: {e}"
         )
 
     return {
