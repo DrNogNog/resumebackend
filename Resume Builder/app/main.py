@@ -58,35 +58,19 @@ app.add_middleware(
 # -------------------------
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
-    # Allow preflight OPTIONS for all paths
     if request.method == "OPTIONS":
-        # Always return 200 OK for preflight
-        response = JSONResponse(status_code=200, content={"detail": "Preflight"})
-        response.headers["Access-Control-Allow-Origin"] = request.headers.get("origin", "*")
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Authorization,Content-Type,x-api-key"
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        return response
+        # let CORSMiddleware handle it
+        return await call_next(request)
 
-    # API key checks for /api (skip /api/auth)
+    # normal API key checks here
     if request.url.path.startswith("/api") and not request.url.path.startswith("/api/auth/"):
         key = request.headers.get("x-api-key")
         if key != SECRET_KEY:
             return JSONResponse(status_code=403, content={"detail": "Forbidden: Invalid API Key"})
 
-        origin = request.headers.get("origin")
-        base_origins = [
-            "https://resumesub.xyz",
-            "https://www.resumesub.xyz",
-            "https://resumefrontend-65glk9ccl-gordonng26-gmailcoms-projects.vercel.app",
-            "http://localhost:3000",
-            "http://127.0.0.1:3000",
-        ]
-        if origin and origin not in base_origins:
-            return JSONResponse(status_code=403, content={"detail": "Forbidden: Invalid Origin"})
-
     response = await call_next(request)
     return response
+
 
 
 # -------------------------
