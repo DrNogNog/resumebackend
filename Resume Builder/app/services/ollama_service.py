@@ -13,7 +13,7 @@ async def call_ollama(prompt: str, model: str = DEFAULT_MODEL) -> str:
     }
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(url, json=payload, timeout=180.0)
+        response = await client.post(url, json=payload, timeout=300.0)
         response.raise_for_status()
         data = response.json()
         if "choices" not in data or not data["choices"]:
