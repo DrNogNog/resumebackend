@@ -43,7 +43,7 @@ def check_download_usage(db, user):
     return True
 
 
-def check_llm_usage(db, user):
+async def check_llm_usage(db, user):
     """
     Decrement user's remaining LLM runs.
     Returns True if allowed, False if limit reached.
@@ -52,5 +52,6 @@ def check_llm_usage(db, user):
         return False
 
     user.llm_runs -= 1
-    db.commit()
+    await db.commit()
+    await db.refresh(user)
     return True

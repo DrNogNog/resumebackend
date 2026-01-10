@@ -55,7 +55,7 @@ async def generate(
     current_user: User = Depends(get_current_user)  # <-- requires login
 ):
     # ---------- Check API usage ----------
-    if not check_llm_usage(db, current_user):
+    if not await check_llm_usage(db, current_user):
         raise HTTPException(
             status_code=403,
             detail="API call limit reached. Upgrade your plan."
