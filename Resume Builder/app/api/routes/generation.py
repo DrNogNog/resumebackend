@@ -9,6 +9,7 @@ from app.core.database import get_db
 from app.services.auth_service import get_current_user
 import httpx
 import traceback
+import asyncio
 
 router = APIRouter()
 
@@ -73,9 +74,11 @@ async def generate(
         prompt_two = await generate_sw_prompt(resume_text, job_description)
         prompt_three = await generate_match_prompt(resume_text, job_description)
 
-        one = await call_ollama(prompt_one)
-        two = await call_ollama(prompt_two)
-        three = await call_ollama(prompt_three)
+        one, two, three = await asyncio.gather(
+            call_ollama(prompt_one),
+            call_ollama(prompt_two),
+            call_ollama(prompt_three)
+        )
     # except httpx.ConnectError:
     #     raise HTTPException(
     #         status_code=503,
