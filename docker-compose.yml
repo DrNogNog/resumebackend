@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   nginx:
     image: nginx:stable
@@ -5,9 +7,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/conf:/etc/nginx/conf.d:ro   # or ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro if full file
+      - ./nginx/conf:/etc/nginx/conf.d:ro
       - ./certs:/etc/letsencrypt:ro
-      - uploads:/app/uploads                # Adjust path if needed (common: /app/uploads)
+      - uploads:/app/uploads
     depends_on:
       - api
     restart: unless-stopped
@@ -28,16 +30,18 @@ services:
       TEX_BIN: xelatex
       DATABASE_URL: postgresql+asyncpg://postgres:1234@resume-postgres:5432/resume_builder
       ALEMBIC_SQLALCHEMY_URL: postgresql+pg8000://postgres:1234@resume-postgres:5432/resume_builder
-      SECRET_KEY: Pinky3Panda03)  # Add your actual key here or in .env
+      SECRET_KEY: Pinky3Panda03)
+      OLLAMA_BASE_URL: http://ollama:11434  # <-- updated for container network
     expose:
       - "8000"
     depends_on:
       - resume-postgres
+      - ollama   # <-- ensure backend waits for Ollama
     restart: unless-stopped
     networks:
       - backend
 
-  resume-postgres:  # Renamed from "db" to match container_name and URLs
+  resume-postgres:
     image: postgres:15
     container_name: resume-postgres
     environment:
@@ -46,6 +50,15 @@ services:
       POSTGRES_DB: resume_builder
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - backend
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"  # host port mapping
     restart: unless-stopped
     networks:
       - backend
