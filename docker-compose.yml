@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   ollama:
-    image: ollama/ollama:0.13.5
+    image: ollama/ollama:0.12.4   # downgrade to 0.12.x
     container_name: ollama
     ports:
       - "11434:11434"
@@ -10,7 +10,7 @@ services:
       - ollama-data:/root/.ollama
     networks:
       - backend
-    command: serve
+    command: serve   # 0.12.x uses 'serve'
     restart: unless-stopped
 
   resume-postgres:
@@ -41,7 +41,7 @@ services:
       ALEMBIC_SQLALCHEMY_URL: postgresql+pg8000://postgres:1234@resume-postgres:5432/resume_builder
       TEX_BIN: xelatex
       SECRET_KEY: Pinky3Panda03)
-      OLLAMA_MODEL: "llama2.7b"   # downgraded to a lighter model for faster responses
+      OLLAMA_MODEL: "llama2.7b"   # or whichever model you want
     expose:
       - "8000"
     depends_on:
