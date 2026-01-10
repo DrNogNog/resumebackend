@@ -4,26 +4,57 @@ import httpx
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
 DEFAULT_MODEL = os.getenv("OLLAMA_MODEL", "phi:2.7b")
 
-async def call_ollama(prompt: str, model: str = DEFAULT_MODEL) -> str:
+async def call_ollama(
+    prompt: str,
+    model: str = DEFAULT_MODEL,
+    temperature: float = 0.7,
+    max_tokens: int = 400,
+    timeout: float = 900.0  # 15 minutes — important for CPU generation!
+) -> str:
+    """
+    Call Ollama using OpenAI-compatible /v1/chat/completions endpoint.
+    """
     url = f"{OLLAMA_HOST}/v1/chat/completions"
+
     payload = {
         "model": model,
         "messages": [
-            {"role": "user", "content": prompt}   # ← Key change: use "messages"
+            {"role": "user", "content": prompt}
         ],
-        "stream": False,
-        # Optional: add temperature, max_tokens, etc. if needed
-        # "temperature": 0.7,
-        # "max_tokens": 300
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "stream": False
     }
 
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url, json=payload, timeout=300.0)
-        response.raise_for_status()
-        data = response.json()
-        if "choices" not in data or not data["choices"]:
-            raise ValueError("Ollama returned empty choices")
-        return data["choices"][0]["message"]["content"]   # ← Note: "message" not "text"
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url,
+                json=payload,
+                timeout=timeout
+            )
+            
+            # For better debugging when things go wrong
+            if response.status_code != 200:
+                print("Ollama error response:", response.text)
+                response.raise_for_status()
+
+            data = response.json()
+
+            if "choices" not in data or not data["choices"]:
+                raise ValueError("Ollama returned empty choices")
+
+            # Correct path for chat completions response
+            content = data["choices"][0]["message"]["content"]
+            return content.strip()
+
+    except httpx.TimeoutException:
+        raise TimeoutError("Ollama request timed out after {} seconds".format(timeout))
+    except httpx.HTTPStatusError as e:
+        error_detail = e.response.text if e.response else str(e)
+        raise RuntimeError(f"Ollama returned error {e.response.status_code}: {error_detail}")
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error calling Ollama: {str(e)}")
 
 async def generate_resume_prompt(resume: str, job_description: str) -> str:
     return f"Given this {resume} out of 100 show me the match percentage between this resume and job description. Only output a score and a summary  of if the candidate has soft, strong or medium alignment to core technical requirements, list these requirements out. Note if the years of experience matches the job description. Note any soft skills the candidate should focus on based on the job description. Do this under 100 words or less. {job_description}"
