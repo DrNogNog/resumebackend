@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   ollama:
-    image: ollama/ollama:0.12.4   # downgrade to 0.12.x
+    image: ollama/ollama:0.14.0   # downgrade to 0.12.x
     container_name: ollama
     ports:
       - "11434:11434"
