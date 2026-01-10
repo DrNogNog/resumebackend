@@ -8,8 +8,13 @@ async def call_ollama(prompt: str, model: str = DEFAULT_MODEL) -> str:
     url = f"{OLLAMA_HOST}/v1/chat/completions"
     payload = {
         "model": model,
-        "prompt": prompt,
-        "stream": False
+        "messages": [
+            {"role": "user", "content": prompt}   # ← Key change: use "messages"
+        ],
+        "stream": False,
+        # Optional: add temperature, max_tokens, etc. if needed
+        # "temperature": 0.7,
+        # "max_tokens": 300
     }
 
     async with httpx.AsyncClient() as client:
@@ -18,7 +23,7 @@ async def call_ollama(prompt: str, model: str = DEFAULT_MODEL) -> str:
         data = response.json()
         if "choices" not in data or not data["choices"]:
             raise ValueError("Ollama returned empty choices")
-        return data["choices"][0]["text"]
+        return data["choices"][0]["message"]["content"]   # ← Note: "message" not "text"
 
 async def generate_resume_prompt(resume: str, job_description: str) -> str:
     return f"Given this {resume} out of 100 show me the match percentage between this resume and job description. Only output a score and a summary  of if the candidate has soft, strong or medium alignment to core technical requirements, list these requirements out. Note if the years of experience matches the job description. Note any soft skills the candidate should focus on based on the job description. Do this under 100 words or less. {job_description}"
