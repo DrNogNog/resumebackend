@@ -58,8 +58,9 @@ app.add_middleware(
 # -------------------------
 @app.middleware("http")
 async def lock_api(request: Request, call_next):
-    # Skip API key / origin check for OPTIONS preflight
+    # Always allow preflight OPTIONS requests to pass
     if request.method == "OPTIONS":
+        # Return an empty 200 response with CORS headers (or just pass to CORSMiddleware)
         return await call_next(request)
 
     if request.url.path.startswith("/api"):
@@ -75,7 +76,7 @@ async def lock_api(request: Request, call_next):
                 content={"detail": "Forbidden: Invalid API Key"},
             )
 
-        # Optional: origin check for protected endpoints
+        # Optional origin check
         origin = request.headers.get("origin")
         if origin:
             if origin not in base_origins and "vercel.app" not in origin and not (
