@@ -46,7 +46,7 @@ async def health_tex():
     return {"tex": tex_bin, "version": first_line}
 
 
-@router.post("/")
+@router.post("")
 async def generate(
     resume_text: Optional[str] = Form(None),
     resume_file: Optional[UploadFile] = File(None),
