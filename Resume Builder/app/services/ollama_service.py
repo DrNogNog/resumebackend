@@ -5,7 +5,7 @@ OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
 DEFAULT_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:latest")
 
 async def call_ollama(prompt: str, model: str = DEFAULT_MODEL) -> str:
-    url = f"{OLLAMA_HOST}/v1/completions"  # updated endpoint
+    url = f"{OLLAMA_HOST}/v1/completions"
     payload = {
         "model": model,
         "prompt": prompt,
@@ -13,10 +13,11 @@ async def call_ollama(prompt: str, model: str = DEFAULT_MODEL) -> str:
     }
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(url, json=payload, timeout=120.0)
+        response = await client.post(url, json=payload, timeout=180.0)
         response.raise_for_status()
         data = response.json()
-        # extract the text from the first choice
+        if "choices" not in data or not data["choices"]:
+            raise ValueError("Ollama returned empty choices")
         return data["choices"][0]["text"]
 
 async def generate_resume_prompt(resume: str, job_description: str) -> str:
