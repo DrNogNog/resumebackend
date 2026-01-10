@@ -9,7 +9,7 @@ async def call_ollama(
     model: str = DEFAULT_MODEL,
     temperature: float = 0.7,
     max_tokens: int = 400,
-    timeout: float = 900.0  # 15 minutes — important for CPU generation!
+    timeout: float = 1800.0  # 15 minutes — important for CPU generation!
 ) -> str:
     """
     Call Ollama using OpenAI-compatible /v1/chat/completions endpoint.
