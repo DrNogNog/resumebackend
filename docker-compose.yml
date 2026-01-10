@@ -41,7 +41,7 @@ services:
       ALEMBIC_SQLALCHEMY_URL: postgresql+pg8000://postgres:1234@resume-postgres:5432/resume_builder
       TEX_BIN: xelatex
       SECRET_KEY: Pinky3Panda03)
-      OLLAMA_MODEL: "llama2.7b"   # or whichever model you want
+      OLLAMA_MODEL: "llama3.2:latest"   # or whichever model you want
     expose:
       - "8000"
     depends_on:
