@@ -10,7 +10,7 @@ services:
       - ollama-data:/root/.ollama
     networks:
       - backend
-    command: serve   # 0.13.5 only needs 'serve', no --host/--port
+    command: serve --api
     restart: unless-stopped
 
   resume-postgres:
