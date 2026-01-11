@@ -8,8 +8,15 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
-    OLLAMA_HOST: str
-    OLLAMA_MODEL: str
+    # Ollama (legacy) - kept optional for backwards compatibility
+    OLLAMA_HOST: str | None = None
+    OLLAMA_MODEL: str | None = None
+
+    # OpenAI configuration
+    OPENAI_API_KEY: str
+    OPENAI_API_BASE: str = "https://api.openai.com"
+    OPENAI_MODEL: str = "gpt-3.5-turbo"
+
     ALGORITHM: str
     STRIPE_API_KEY: str
     PRO_PRICE_ID: str

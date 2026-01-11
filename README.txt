@@ -58,6 +58,8 @@ Docker Compose (local testing / small production):
   - nginx config in `nginx/conf/default.conf` (created)
   - a named volume `uploads` is used to persist generated PDFs
 
+Note: This project uses OpenAI for LLM features. Set the `OPENAI_API_KEY` environment variable (and `OPENAI_API_BASE` if using an alternate base) before starting the app.
+
 Health check:
 - App: GET /health returns basic app status
 - TeX: GET /gen/health/tex returns the configured TeX binary and version if available. Use this to verify `xelatex` is installed and on PATH.

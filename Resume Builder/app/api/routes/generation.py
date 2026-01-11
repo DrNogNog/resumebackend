@@ -68,7 +68,7 @@ async def generate(
     elif not resume_text:
         raise HTTPException(status_code=400, detail="Please provide either resume text or a file.")
 
-    # ---------- Call Ollama ----------
+    # ---------- Call OpenAI ----------
     try:
         prompt_one = await generate_resume_prompt(resume_text, job_description)
         prompt_two = await generate_sw_prompt(resume_text, job_description)
@@ -85,11 +85,11 @@ async def generate(
     #         detail="LLM service is currently unavailable. Please try again later."
     #     )
     except Exception as e:
-        print("OLLAMA FAILURE:", repr(e))
+        print("OpenAI FAILURE:", repr(e))
         traceback.print_exc()
         raise HTTPException(
             status_code=503,
-            detail=f"Ollama error: {type(e).__name__}: {e}"
+            detail=f"OpenAI error: {type(e).__name__}: {e}"
         )
 
     return {
