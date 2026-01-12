@@ -14,15 +14,18 @@ from app.core.database import get_db
 import logging
 import httpx
 
-# MailerSend configuration (expects MAILERSEND_API_KEY in environment)
+# Load .env early so env vars are available
+load_dotenv()
+
+# MailerSend configuration (expects MAILERSEND_API_KEY and MAILERSEND_FROM_EMAIL in environment)
 MAILERSEND_API_KEY = os.getenv("MAILERSEND_API_KEY")
+MAILERSEND_FROM_EMAIL = os.getenv("MAILERSEND_FROM_EMAIL")
+MAILERSEND_FROM_NAME = os.getenv("MAILERSEND_FROM_NAME", "Resume")
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from concurrent.futures import ThreadPoolExecutor
 from app.core.sync_database import get_db_sync
-
-load_dotenv()
 
 SMTP_USER = os.getenv("SMTP_USER")
 
@@ -68,8 +71,12 @@ If you didn't create this account, you can safely ignore this email.
         "Authorization": f"Bearer {MAILERSEND_API_KEY}",
         "Content-Type": "application/json",
     }
+    if not MAILERSEND_FROM_EMAIL:
+        logger.error("❌ MAILERSEND_FROM_EMAIL not set; set it to a verified sender (e.g. postmaster@test-nrw7gymqyrkg2k8e.mlsender.net)")
+        return
+
     payload = {
-        "from": {"email": SMTP_USER or "no-reply@resume.app", "name": "Resume"},
+        "from": {"email": MAILERSEND_FROM_EMAIL, "name": MAILERSEND_FROM_NAME},
         "to": [{"email": user_email}],
         "subject": subject,
         "text": text_body,
@@ -84,6 +91,8 @@ If you didn't create this account, you can safely ignore this email.
     except httpx.HTTPStatusError as e:
         resp = e.response
         logger.error(f"❌ MailerSend API error for {user_email}: {resp.status_code} - {resp.text}")
+        if resp.status_code == 422:
+            logger.error("❗ MailerSend 422: sender domain/email may be unverified. Ensure MAILERSEND_FROM_EMAIL is set to an address verified in MailerSend (or verify the domain in the MailerSend dashboard).")
     except Exception as e:
         logger.error(f"❌ Unexpected error sending verification email to {user_email}: {e}")
 

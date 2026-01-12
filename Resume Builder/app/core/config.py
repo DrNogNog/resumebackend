@@ -23,7 +23,9 @@ class Settings(BaseSettings):
     PRO_PLUS_PRICE_ID: str
     FRONTEND_URL: str
     MAILERSEND_API_KEY: str
-    SMTP_USER: str
+    MAILERSEND_FROM_EMAIL: str
+    MAILERSEND_FROM_NAME: str
+
     
 
     STRIPE_WEBHOOK_SECRET: str
