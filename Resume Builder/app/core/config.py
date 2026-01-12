@@ -22,10 +22,7 @@ class Settings(BaseSettings):
     PRO_PRICE_ID: str
     PRO_PLUS_PRICE_ID: str
     FRONTEND_URL: str
-
-    MAILGUN_DOMAIN: str
-    MAILGUN_API_KEY: str
-    MAILGUN_BASE_URL: str   
+    MAILERSEND_API_KEY: str
     SMTP_USER: str
     
 
