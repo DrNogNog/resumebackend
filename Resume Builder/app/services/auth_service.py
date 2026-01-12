@@ -192,11 +192,7 @@ async def signup_user(db: AsyncSession, name: str, email: str, password: str) ->
         await db.refresh(user)
         await db.refresh(free_subscription)
 
-        # 6️⃣ Send verification email separately
-        try:
-            await send_verification_email_async(user.email, user.verification_token)
-        except Exception as e:
-            logger.error(f"❌ Failed to send verification email: {e}")
+        # 6️⃣ Send verification email is handled by the caller (e.g., scheduled as a BackgroundTask in the route)
 
         return user
 
