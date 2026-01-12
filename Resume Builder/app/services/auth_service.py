@@ -14,10 +14,8 @@ from app.core.database import get_db
 import logging
 import httpx
 
-# Mailgun configuration (expects MAILGUN_DOMAIN and MAILGUN_API_KEY in environment)
-MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
-MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
-MAILGUN_BASE_URL = os.getenv("MAILGUN_BASE_URL", "https://api.mailgun.net/v3")
+# MailerSend configuration (expects MAILERSEND_API_KEY in environment)
+MAILERSEND_API_KEY = os.getenv("MAILERSEND_API_KEY")
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,8 +34,6 @@ async def send_verification_email_async(user_email: str, token: str):
     verification_url = f"{FRONTEND_URL}/verify-email?token={token}"
 
     subject = "Verify your Resume account"
-    # Use the postmaster account explicitly for Mailgun
-    from_email = f"Resume <postmaster@{MAILGUN_DOMAIN}>"
 
     text_body = f"""Welcome to Resume!
 
@@ -63,16 +59,18 @@ If you didn't create this account, you can safely ignore this email.
   </body>
 </html>"""
 
-    if not MAILGUN_DOMAIN or not MAILGUN_API_KEY:
-        logger.error("❌ Mailgun configuration missing; set MAILGUN_DOMAIN and MAILGUN_API_KEY")
+    if not MAILERSEND_API_KEY:
+        logger.error("❌ MailerSend API key missing; set MAILERSEND_API_KEY")
         return
 
-    # Correct URL for Mailgun API
-    url = f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages"
-    auth = ("api", MAILGUN_API_KEY)
-    data = {
-        "from": from_email,
-        "to": user_email,
+    url = "https://api.mailersend.com/v1/email"
+    headers = {
+        "Authorization": f"Bearer {MAILERSEND_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "from": {"email": SMTP_USER or "no-reply@resume.app", "name": "Resume"},
+        "to": [{"email": user_email}],
         "subject": subject,
         "text": text_body,
         "html": html_body,
@@ -80,12 +78,12 @@ If you didn't create this account, you can safely ignore this email.
 
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.post(url, data=data, auth=auth)
+            resp = await client.post(url, json=payload, headers=headers)
             resp.raise_for_status()
-            logger.info(f"✅ Verification email sent to {user_email} via Mailgun")
+            logger.info(f"✅ Verification email sent to {user_email} via MailerSend")
     except httpx.HTTPStatusError as e:
         resp = e.response
-        logger.error(f"❌ Mailgun API error for {user_email}: {resp.status_code} - {resp.text}")
+        logger.error(f"❌ MailerSend API error for {user_email}: {resp.status_code} - {resp.text}")
     except Exception as e:
         logger.error(f"❌ Unexpected error sending verification email to {user_email}: {e}")
 

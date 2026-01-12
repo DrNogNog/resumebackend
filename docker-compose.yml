@@ -32,11 +32,8 @@ services:
       ALEMBIC_SQLALCHEMY_URL: postgresql+pg8000://postgres:1234@resume-postgres:5432/resume_builder
       TEX_BIN: xelatex
       SECRET_KEY: Pinky3Panda03)
-      # OpenAI configuration - set these in your .env or environment
-      # OPENAI_API_KEY is required; OPENAI_API_BASE and OPENAI_MODEL are optional
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      OPENAI_API_BASE: ${OPENAI_API_BASE:-https://api.openai.com}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-3.5-turbo}
+      # OpenAI configuration is loaded from `./Resume Builder/.env` via `env_file` above.
+      # Add your `OPENAI_API_KEY` (required) and optional `OPENAI_API_BASE`/`OPENAI_MODEL` there.
     expose:
       - "8000"
     depends_on:
