@@ -34,8 +34,9 @@ executor = ThreadPoolExecutor(max_workers=2)
 logger = logging.getLogger(__name__)
 
 async def send_verification_email_async(user_email: str, token: str):
-    verification_url = f"{FRONTEND_URL}/verify-email?token={token}"
+    logger.warning("🚀 send_verification_email_async CALLED")  # ✅ Debug log
 
+    verification_url = f"{FRONTEND_URL}/verify-email?token={token}"
     subject = "Verify your Resume account"
 
     text_body = f"""Welcome to Resume!
@@ -66,14 +67,15 @@ If you didn't create this account, you can safely ignore this email.
         logger.error("❌ MailerSend API key missing; set MAILERSEND_API_KEY")
         return
 
+    if not MAILERSEND_FROM_EMAIL:
+        logger.error("❌ MAILERSEND_FROM_EMAIL not set; set it to a verified sender (e.g. postmaster@test-nrw7gymqyrkg2k8e.mlsender.net)")
+        return
+
     url = "https://api.mailersend.com/v1/email"
     headers = {
         "Authorization": f"Bearer {MAILERSEND_API_KEY}",
         "Content-Type": "application/json",
     }
-    if not MAILERSEND_FROM_EMAIL:
-        logger.error("❌ MAILERSEND_FROM_EMAIL not set; set it to a verified sender (e.g. postmaster@test-nrw7gymqyrkg2k8e.mlsender.net)")
-        return
 
     payload = {
         "from": {"email": MAILERSEND_FROM_EMAIL, "name": MAILERSEND_FROM_NAME},
@@ -92,7 +94,11 @@ If you didn't create this account, you can safely ignore this email.
         resp = e.response
         logger.error(f"❌ MailerSend API error for {user_email}: {resp.status_code} - {resp.text}")
         if resp.status_code == 422:
-            logger.error("❗ MailerSend 422: sender domain/email may be unverified. Ensure MAILERSEND_FROM_EMAIL is set to an address verified in MailerSend (or verify the domain in the MailerSend dashboard).")
+            logger.error(
+                "❗ MailerSend 422: sender domain/email may be unverified. "
+                "Ensure MAILERSEND_FROM_EMAIL is set to an address verified in MailerSend "
+                "(or verify the domain in the MailerSend dashboard)."
+            )
     except Exception as e:
         logger.error(f"❌ Unexpected error sending verification email to {user_email}: {e}")
 
